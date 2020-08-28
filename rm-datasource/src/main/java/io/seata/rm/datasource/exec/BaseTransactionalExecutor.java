@@ -26,10 +26,7 @@ import io.seata.common.util.CollectionUtils;
 import io.seata.common.util.IOUtil;
 import io.seata.common.util.StringUtils;
 import io.seata.core.context.RootContext;
-import io.seata.rm.datasource.ColumnUtils;
-import io.seata.rm.datasource.ConnectionProxy;
-import io.seata.rm.datasource.SqlGenerateUtils;
-import io.seata.rm.datasource.StatementProxy;
+import io.seata.rm.datasource.*;
 import io.seata.rm.datasource.sql.struct.Field;
 import io.seata.rm.datasource.sql.struct.TableMeta;
 import io.seata.rm.datasource.sql.struct.TableMetaCacheFactory;
@@ -39,9 +36,12 @@ import io.seata.sqlparser.ParametersHolder;
 import io.seata.sqlparser.SQLRecognizer;
 import io.seata.sqlparser.SQLType;
 import io.seata.sqlparser.WhereRecognizer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Callable;
 
 /**
  * The type Base transactional executor.
@@ -51,6 +51,7 @@ import java.util.List;
  * @author sharajava
  */
 public abstract class BaseTransactionalExecutor<T, S extends Statement> implements Executor<T> {
+    private static final Logger LOGGER = LoggerFactory.getLogger(BaseTransactionalExecutor.class);
 
     /**
      * The Statement proxy.
@@ -122,7 +123,53 @@ public abstract class BaseTransactionalExecutor<T, S extends Statement> implemen
      * @return the object
      * @throws Throwable the throwable
      */
-    protected abstract T doExecute(Object... args) throws Throwable;
+    public T doExecute(Object... args) throws Throwable {
+        AbstractConnectionProxy connectionProxy = statementProxy.getConnectionProxy();
+        if (connectionProxy.getAutoCommit()) {
+            return executeAutoCommitTrue(args);
+        } else {
+            return executeAutoCommitFalse(args);
+        }
+    }
+
+    /**
+     * Execute auto commit false t.
+     *
+     * @param args the args
+     * @return the t
+     * @throws Exception the exception
+     */
+    protected abstract T executeAutoCommitFalse(Object[] args) throws Exception;
+
+    /**
+     * Execute auto commit true t.
+     *
+     * @param args the args
+     * @return the t
+     * @throws Throwable the throwable
+     */
+    protected T executeAutoCommitTrue(Object[] args) throws Throwable  {
+        ConnectionProxy connectionProxy = statementProxy.getConnectionProxy();
+        try {
+            connectionProxy.setAutoCommit(false);
+            return new LockRetryPolicy(connectionProxy).execute(() -> {
+                T result = executeAutoCommitFalse(args);
+                connectionProxy.commit();
+                return result;
+            });
+        } catch (Exception e) {
+            // when exception occur in finally,this exception will lost, so just print it here
+            LOGGER.error("execute executeAutoCommitTrue error:{}", e.getMessage(), e);
+            if (!LockRetryPolicy.isLockRetryPolicyBranchRollbackOnConflict()) {
+                connectionProxy.getTargetConnection().rollback();
+            }
+            throw e;
+        } finally {
+            connectionProxy.getContext().reset();
+            connectionProxy.setAutoCommit(true);
+        }
+    }
+
 
 
     /**
@@ -414,4 +461,33 @@ public abstract class BaseTransactionalExecutor<T, S extends Statement> implemen
         return statementProxy.getConnectionProxy().getDbType();
     }
 
+    protected static class LockRetryPolicy extends ConnectionProxy.LockRetryPolicy {
+        private final ConnectionProxy connection;
+
+        LockRetryPolicy(final ConnectionProxy connection) {
+            this.connection = connection;
+        }
+
+        @Override
+        public <T> T execute(Callable<T> callable) throws Exception {
+            if (LOCK_RETRY_POLICY_BRANCH_ROLLBACK_ON_CONFLICT) {
+                return doRetryOnLockConflict(callable);
+            } else {
+                return callable.call();
+            }
+        }
+
+        @Override
+        protected void onException(Exception e) throws Exception {
+            ConnectionContext context = connection.getContext();
+            //UndoItems can't use the Set collection class to prevent ABA
+            context.getUndoItems().clear();
+            context.getLockKeysBuffer().clear();
+            connection.getTargetConnection().rollback();
+        }
+
+        public static boolean isLockRetryPolicyBranchRollbackOnConflict() {
+            return LOCK_RETRY_POLICY_BRANCH_ROLLBACK_ON_CONFLICT;
+        }
+    }
 }

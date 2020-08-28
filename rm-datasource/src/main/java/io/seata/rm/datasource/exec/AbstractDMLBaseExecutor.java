@@ -67,16 +67,6 @@ public abstract class AbstractDMLBaseExecutor<T, S extends Statement> extends Ba
         super(statementProxy, statementCallback, sqlRecognizers);
     }
 
-    @Override
-    public T doExecute(Object... args) throws Throwable {
-        AbstractConnectionProxy connectionProxy = statementProxy.getConnectionProxy();
-        if (connectionProxy.getAutoCommit()) {
-            return executeAutoCommitTrue(args);
-        } else {
-            return executeAutoCommitFalse(args);
-        }
-    }
-
     /**
      * Execute auto commit false t.
      *
@@ -97,35 +87,6 @@ public abstract class AbstractDMLBaseExecutor<T, S extends Statement> extends Ba
     }
 
     /**
-     * Execute auto commit true t.
-     *
-     * @param args the args
-     * @return the t
-     * @throws Throwable the throwable
-     */
-    protected T executeAutoCommitTrue(Object[] args) throws Throwable {
-        ConnectionProxy connectionProxy = statementProxy.getConnectionProxy();
-        try {
-            connectionProxy.setAutoCommit(false);
-            return new LockRetryPolicy(connectionProxy).execute(() -> {
-                T result = executeAutoCommitFalse(args);
-                connectionProxy.commit();
-                return result;
-            });
-        } catch (Exception e) {
-            // when exception occur in finally,this exception will lost, so just print it here
-            LOGGER.error("execute executeAutoCommitTrue error:{}", e.getMessage(), e);
-            if (!LockRetryPolicy.isLockRetryPolicyBranchRollbackOnConflict()) {
-                connectionProxy.getTargetConnection().rollback();
-            }
-            throw e;
-        } finally {
-            connectionProxy.getContext().reset();
-            connectionProxy.setAutoCommit(true);
-        }
-    }
-
-    /**
      * Before image table records.
      *
      * @return the table records
@@ -141,34 +102,4 @@ public abstract class AbstractDMLBaseExecutor<T, S extends Statement> extends Ba
      * @throws SQLException the sql exception
      */
     protected abstract TableRecords afterImage(TableRecords beforeImage) throws SQLException;
-
-    private static class LockRetryPolicy extends ConnectionProxy.LockRetryPolicy {
-        private final ConnectionProxy connection;
-
-        LockRetryPolicy(final ConnectionProxy connection) {
-            this.connection = connection;
-        }
-
-        @Override
-        public <T> T execute(Callable<T> callable) throws Exception {
-            if (LOCK_RETRY_POLICY_BRANCH_ROLLBACK_ON_CONFLICT) {
-                return doRetryOnLockConflict(callable);
-            } else {
-                return callable.call();
-            }
-        }
-
-        @Override
-        protected void onException(Exception e) throws Exception {
-            ConnectionContext context = connection.getContext();
-            //UndoItems can't use the Set collection class to prevent ABA
-            context.getUndoItems().clear();
-            context.getLockKeysBuffer().clear();
-            connection.getTargetConnection().rollback();
-        }
-
-        public static boolean isLockRetryPolicyBranchRollbackOnConflict() {
-            return LOCK_RETRY_POLICY_BRANCH_ROLLBACK_ON_CONFLICT;
-        }
-    }
 }

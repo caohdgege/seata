@@ -55,82 +55,16 @@ public class SelectForUpdateExecutor<T, S extends Statement> extends BaseTransac
     }
 
     @Override
-    public T doExecute(Object... args) throws Throwable {
-        Connection conn = statementProxy.getConnection();
-        DatabaseMetaData dbmd = conn.getMetaData();
-        T rs;
-        Savepoint sp = null;
-        LockRetryController lockRetryController = new LockRetryController();
-        boolean originalAutoCommit = conn.getAutoCommit();
+    protected T executeAutoCommitFalse(Object[] args) throws Exception {
+        // append lock key so it can check lock when committing
         ArrayList<List<Object>> paramAppenderList = new ArrayList<>();
         String selectPKSQL = buildSelectSQL(paramAppenderList);
-        try {
-            if (originalAutoCommit) {
-                /*
-                 * In order to hold the local db lock during global lock checking
-                 * set auto commit value to false first if original auto commit was true
-                 */
-                conn.setAutoCommit(false);
-            } else if (dbmd.supportsSavepoints()) {
-                /*
-                 * In order to release the local db lock when global lock conflict
-                 * create a save point if original auto commit was false, then use the save point here to release db
-                 * lock during global lock checking if necessary
-                 */
-                sp = conn.setSavepoint();
-            } else {
-                throw new SQLException("not support savepoint. please check your db version");
-            }
+        TableRecords selectPKRows = buildTableRecords(getTableMeta(), selectPKSQL, paramAppenderList);
+        String lockKeys = buildLockKey(selectPKRows);
+        statementProxy.getConnectionProxy().appendLockKey(lockKeys);
 
-            while (true) {
-                try {
-                    // #870
-                    // execute return Boolean
-                    // executeQuery return ResultSet
-                    rs = statementCallback.execute(statementProxy.getTargetStatement(), args);
-
-                    // Try to get global lock of those rows selected
-                    TableRecords selectPKRows = buildTableRecords(getTableMeta(), selectPKSQL, paramAppenderList);
-                    String lockKeys = buildLockKey(selectPKRows);
-                    if (StringUtils.isNullOrEmpty(lockKeys)) {
-                        break;
-                    }
-
-                    if (RootContext.inGlobalTransaction()) {
-                        //do as usual
-                        statementProxy.getConnectionProxy().checkLock(lockKeys);
-                    } else if (RootContext.requireGlobalLock()) {
-                        //check lock key before commit just like DML to avoid reentrant lock problem(no xid thus can
-                        // not reentrant)
-                        statementProxy.getConnectionProxy().appendLockKey(lockKeys);
-                    } else {
-                        throw new RuntimeException("Unknown situation!");
-                    }
-                    break;
-                } catch (LockConflictException lce) {
-                    if (sp != null) {
-                        conn.rollback(sp);
-                    } else {
-                        conn.rollback();
-                    }
-                    lockRetryController.sleep(lce);
-                }
-            }
-        } finally {
-            if (sp != null) {
-                try {
-                    conn.releaseSavepoint(sp);
-                } catch (SQLException e) {
-                    if (LOGGER.isWarnEnabled()) {
-                        LOGGER.warn("{} does not support release save point, but this is not a error.", getDbType());
-                    }
-                }
-            }
-            if (originalAutoCommit) {
-                conn.setAutoCommit(true);
-            }
-        }
-        return rs;
+        // do the business query
+        return statementCallback.execute(statementProxy.getTargetStatement(), args);
     }
 
     private String buildSelectSQL(ArrayList<List<Object>> paramAppenderList) {
