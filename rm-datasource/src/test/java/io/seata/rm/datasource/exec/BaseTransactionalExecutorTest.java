@@ -50,6 +50,11 @@ public class BaseTransactionalExecutorTest {
             protected Object doExecute(Object... args) {
                 return null;
             }
+
+            @Override
+            protected Object executeAutoCommitFalse(Object[] args) throws Exception {
+                return null;
+            }
         };
         GlobalLockTemplate<Object> globalLockLocalTransactionalTemplate = new GlobalLockTemplate<>();
 

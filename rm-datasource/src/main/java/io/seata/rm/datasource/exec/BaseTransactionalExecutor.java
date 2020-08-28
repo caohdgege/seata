@@ -123,7 +123,7 @@ public abstract class BaseTransactionalExecutor<T, S extends Statement> implemen
      * @return the object
      * @throws Throwable the throwable
      */
-    public T doExecute(Object... args) throws Throwable {
+    protected T doExecute(Object... args) throws Throwable {
         AbstractConnectionProxy connectionProxy = statementProxy.getConnectionProxy();
         if (connectionProxy.getAutoCommit()) {
             return executeAutoCommitTrue(args);

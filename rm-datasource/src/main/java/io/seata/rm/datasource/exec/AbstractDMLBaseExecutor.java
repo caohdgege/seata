@@ -74,6 +74,7 @@ public abstract class AbstractDMLBaseExecutor<T, S extends Statement> extends Ba
      * @return the t
      * @throws Exception the exception
      */
+    @Override
     protected T executeAutoCommitFalse(Object[] args) throws Exception {
         if (!JdbcConstants.MYSQL.equalsIgnoreCase(getDbType()) && getTableMeta().getPrimaryKeyOnlyName().size() > 1)
         {
