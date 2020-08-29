@@ -15,11 +15,7 @@
  */
 package io.seata.rm.datasource.exec;
 
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.Savepoint;
-import java.sql.Statement;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,6 +37,8 @@ import org.slf4j.LoggerFactory;
 public class SelectForUpdateExecutor<T, S extends Statement> extends BaseTransactionalExecutor<T, S> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SelectForUpdateExecutor.class);
+
+    private T result;
 
     /**
      * Instantiates a new Select for update executor.
@@ -64,7 +62,16 @@ public class SelectForUpdateExecutor<T, S extends Statement> extends BaseTransac
         statementProxy.getConnectionProxy().appendLockKey(lockKeys);
 
         // do the business query
-        return statementCallback.execute(statementProxy.getTargetStatement(), args);
+        // the result of selectForUpdate must by ResultSet type
+        result = statementCallback.execute(statementProxy.getTargetStatement(), args);
+
+        // the select for update need to add undo_log either
+        // so it can be check when rollback
+        TableRecords beforeImage = beforeImage();
+        TableRecords afterImage = selectPKRows;
+        prepareUndoLog(beforeImage, afterImage);
+
+        return result;
     }
 
     private String buildSelectSQL(ArrayList<List<Object>> paramAppenderList) {
@@ -78,5 +85,16 @@ public class SelectForUpdateExecutor<T, S extends Statement> extends BaseTransac
         }
         selectSQLAppender.append(" FOR UPDATE");
         return selectSQLAppender.toString();
+    }
+
+    @Override
+    protected TableRecords beforeImage() throws SQLException {
+        return TableRecords.empty(getTableMeta());
+    }
+
+    @Override
+    protected TableRecords afterImage(TableRecords beforeImage) throws SQLException {
+        // add the before and after image so it can cast to ResultSet
+        return TableRecords.buildRecords(getTableMeta(), (ResultSet) result);
     }
 }

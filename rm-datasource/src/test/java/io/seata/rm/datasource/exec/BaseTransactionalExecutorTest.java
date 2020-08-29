@@ -25,6 +25,7 @@ import io.seata.sqlparser.SQLRecognizer;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.*;
 import java.util.concurrent.Callable;
@@ -53,6 +54,16 @@ public class BaseTransactionalExecutorTest {
 
             @Override
             protected Object executeAutoCommitFalse(Object[] args) throws Exception {
+                return null;
+            }
+
+            @Override
+            protected TableRecords afterImage(TableRecords beforeImage) throws SQLException {
+                return null;
+            }
+
+            @Override
+            protected TableRecords beforeImage() throws SQLException {
                 return null;
             }
         };

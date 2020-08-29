@@ -86,21 +86,4 @@ public abstract class AbstractDMLBaseExecutor<T, S extends Statement> extends Ba
         prepareUndoLog(beforeImage, afterImage);
         return result;
     }
-
-    /**
-     * Before image table records.
-     *
-     * @return the table records
-     * @throws SQLException the sql exception
-     */
-    protected abstract TableRecords beforeImage() throws SQLException;
-
-    /**
-     * After image table records.
-     *
-     * @param beforeImage the before image
-     * @return the table records
-     * @throws SQLException the sql exception
-     */
-    protected abstract TableRecords afterImage(TableRecords beforeImage) throws SQLException;
 }
