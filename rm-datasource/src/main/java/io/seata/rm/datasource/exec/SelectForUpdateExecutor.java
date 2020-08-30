@@ -38,8 +38,6 @@ public class SelectForUpdateExecutor<T, S extends Statement> extends BaseTransac
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SelectForUpdateExecutor.class);
 
-    private T result;
-
     /**
      * Instantiates a new Select for update executor.
      *
@@ -50,6 +48,18 @@ public class SelectForUpdateExecutor<T, S extends Statement> extends BaseTransac
     public SelectForUpdateExecutor(StatementProxy<S> statementProxy, StatementCallback<T, S> statementCallback,
                                    SQLRecognizer sqlRecognizer) {
         super(statementProxy, statementCallback, sqlRecognizer);
+    }
+
+    @Override
+    protected TableRecords beforeImage() throws SQLException {
+        return TableRecords.empty(getTableMeta());
+    }
+
+    @Override
+    protected TableRecords afterImage(TableRecords beforeImage) throws SQLException {
+        ArrayList<List<Object>> paramAppenderList = new ArrayList<>();
+        String selectPKSQL = buildSelectSQL(paramAppenderList);
+        return buildTableRecords(getTableMeta(), selectPKSQL, paramAppenderList);
     }
 
     private String buildSelectSQL(ArrayList<List<Object>> paramAppenderList) {
@@ -63,17 +73,5 @@ public class SelectForUpdateExecutor<T, S extends Statement> extends BaseTransac
         }
         selectSQLAppender.append(" FOR UPDATE");
         return selectSQLAppender.toString();
-    }
-
-    @Override
-    protected TableRecords beforeImage() throws SQLException {
-        return TableRecords.empty(getTableMeta());
-    }
-
-    @Override
-    protected TableRecords afterImage(TableRecords beforeImage) throws SQLException {
-        ArrayList<List<Object>> paramAppenderList = new ArrayList<>();
-        String selectPKSQL = buildSelectSQL(paramAppenderList);
-        return buildTableRecords(getTableMeta(), selectPKSQL, paramAppenderList);
     }
 }
