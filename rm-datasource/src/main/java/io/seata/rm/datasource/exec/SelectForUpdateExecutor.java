@@ -52,28 +52,6 @@ public class SelectForUpdateExecutor<T, S extends Statement> extends BaseTransac
         super(statementProxy, statementCallback, sqlRecognizer);
     }
 
-    @Override
-    protected T executeAutoCommitFalse(Object[] args) throws Exception {
-        // append lock key so it can check lock when committing
-        ArrayList<List<Object>> paramAppenderList = new ArrayList<>();
-        String selectPKSQL = buildSelectSQL(paramAppenderList);
-        TableRecords selectPKRows = buildTableRecords(getTableMeta(), selectPKSQL, paramAppenderList);
-        String lockKeys = buildLockKey(selectPKRows);
-        statementProxy.getConnectionProxy().appendLockKey(lockKeys);
-
-        // do the business query
-        // the result of selectForUpdate must by ResultSet type
-        result = statementCallback.execute(statementProxy.getTargetStatement(), args);
-
-        // the select for update need to add undo_log either
-        // so it can be check when rollback
-        TableRecords beforeImage = beforeImage();
-        TableRecords afterImage = selectPKRows;
-        prepareUndoLog(beforeImage, afterImage);
-
-        return result;
-    }
-
     private String buildSelectSQL(ArrayList<List<Object>> paramAppenderList) {
         SQLSelectRecognizer recognizer = (SQLSelectRecognizer)sqlRecognizer;
         StringBuilder selectSQLAppender = new StringBuilder("SELECT ");
@@ -94,7 +72,8 @@ public class SelectForUpdateExecutor<T, S extends Statement> extends BaseTransac
 
     @Override
     protected TableRecords afterImage(TableRecords beforeImage) throws SQLException {
-        // add the before and after image so it can cast to ResultSet
-        return TableRecords.buildRecords(getTableMeta(), (ResultSet) result);
+        ArrayList<List<Object>> paramAppenderList = new ArrayList<>();
+        String selectPKSQL = buildSelectSQL(paramAppenderList);
+        return buildTableRecords(getTableMeta(), selectPKSQL, paramAppenderList);
     }
 }

@@ -66,24 +66,4 @@ public abstract class AbstractDMLBaseExecutor<T, S extends Statement> extends Ba
                                    List<SQLRecognizer> sqlRecognizers) {
         super(statementProxy, statementCallback, sqlRecognizers);
     }
-
-    /**
-     * Execute auto commit false t.
-     *
-     * @param args the args
-     * @return the t
-     * @throws Exception the exception
-     */
-    @Override
-    protected T executeAutoCommitFalse(Object[] args) throws Exception {
-        if (!JdbcConstants.MYSQL.equalsIgnoreCase(getDbType()) && getTableMeta().getPrimaryKeyOnlyName().size() > 1)
-        {
-            throw new NotSupportYetException("multi pk only support mysql!");
-        }
-        TableRecords beforeImage = beforeImage();
-        T result = statementCallback.execute(statementProxy.getTargetStatement(), args);
-        TableRecords afterImage = afterImage(beforeImage);
-        prepareUndoLog(beforeImage, afterImage);
-        return result;
-    }
 }

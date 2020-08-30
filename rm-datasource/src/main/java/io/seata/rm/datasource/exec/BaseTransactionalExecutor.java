@@ -22,6 +22,7 @@ import java.sql.Statement;
 import java.util.Map;
 import java.util.Objects;
 
+import io.seata.common.exception.NotSupportYetException;
 import io.seata.common.util.CollectionUtils;
 import io.seata.common.util.IOUtil;
 import io.seata.common.util.StringUtils;
@@ -36,6 +37,7 @@ import io.seata.sqlparser.ParametersHolder;
 import io.seata.sqlparser.SQLRecognizer;
 import io.seata.sqlparser.SQLType;
 import io.seata.sqlparser.WhereRecognizer;
+import io.seata.sqlparser.util.JdbcConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -139,7 +141,17 @@ public abstract class BaseTransactionalExecutor<T, S extends Statement> implemen
      * @return the t
      * @throws Exception the exception
      */
-    protected abstract T executeAutoCommitFalse(Object[] args) throws Exception;
+    protected T executeAutoCommitFalse(Object[] args) throws Exception {
+        if (!JdbcConstants.MYSQL.equalsIgnoreCase(getDbType()) && getTableMeta().getPrimaryKeyOnlyName().size() > 1)
+        {
+            throw new NotSupportYetException("multi pk only support mysql!");
+        }
+        TableRecords beforeImage = beforeImage();
+        T result = statementCallback.execute(statementProxy.getTargetStatement(), args);
+        TableRecords afterImage = afterImage(beforeImage);
+        prepareUndoLog(beforeImage, afterImage);
+        return result;
+    }
 
     /**
      * Execute auto commit true t.
