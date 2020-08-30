@@ -43,4 +43,9 @@ public class PostgresqlUndoExecutorHolder implements UndoExecutorHolder {
     public AbstractUndoExecutor getDeleteExecutor(SQLUndoLog sqlUndoLog) {
         return new PostgresqlUndoDeleteExecutor(sqlUndoLog);
     }
+
+    @Override
+    public AbstractUndoExecutor getSelectForUpdateExecutor(SQLUndoLog sqlUndoLog) {
+        return new PostgresqlUndoSelectForUpdateExecutor(sqlUndoLog);
+    }
 }

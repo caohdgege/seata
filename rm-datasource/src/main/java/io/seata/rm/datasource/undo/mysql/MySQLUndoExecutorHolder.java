@@ -43,4 +43,9 @@ public class MySQLUndoExecutorHolder implements UndoExecutorHolder {
     public AbstractUndoExecutor getDeleteExecutor(SQLUndoLog sqlUndoLog) {
         return new MySQLUndoDeleteExecutor(sqlUndoLog);
     }
+
+    @Override
+    public AbstractUndoExecutor getSelectForUpdateExecutor(SQLUndoLog sqlUndoLog) {
+        return new MySQLUndoSelectForUpdateExecutor(sqlUndoLog);
+    }
 }
