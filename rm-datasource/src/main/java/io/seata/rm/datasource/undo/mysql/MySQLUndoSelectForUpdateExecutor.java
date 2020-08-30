@@ -21,6 +21,9 @@ import io.seata.rm.datasource.undo.SQLUndoLog;
 
 import java.util.List;
 
+/**
+ * @author chd
+ */
 public class MySQLUndoSelectForUpdateExecutor extends AbstractUndoExecutor {
     /**
      * Instantiates a new Abstract undo executor.

@@ -158,6 +158,49 @@ public class AbstractUndoExecutorTest extends BaseH2Test {
     }
 
     @Test
+    public void dataValidationSelectForUpdate() throws SQLException {
+        execSQL("INSERT INTO table_name(id, name) VALUES (12345,'aaa');");
+        execSQL("INSERT INTO table_name(id, name) VALUES (12346,'aaa');");
+
+        TableRecords beforeImage = TableRecords.empty(tableMeta);
+
+        execSQL("SELECT * FROM table_name WHERE id IN (12345, 12346) FOR UPDATE;");
+
+        TableRecords afterImage = execQuery(tableMeta, "SELECT * FROM table_name WHERE id IN (12345, 12346) FOR UPDATE;");
+
+        SQLUndoLog sqlUndoLog = new SQLUndoLog();
+        sqlUndoLog.setSqlType(SQLType.SELECT_FOR_UPDATE);
+        sqlUndoLog.setTableMeta(tableMeta);
+        sqlUndoLog.setTableName("table_name");
+        sqlUndoLog.setBeforeImage(beforeImage);
+        sqlUndoLog.setAfterImage(afterImage);
+
+        TestUndoExecutor spy = new TestUndoExecutor(sqlUndoLog, false);
+
+
+        // case1: normal case  after:aaa -> current:aaa
+        Assertions.assertTrue(spy.dataValidationAndGoOn(connection));
+
+        // case2: dirty data   after:aaa -> current:yyy
+        execSQL("update table_name set name = 'yyy' where id in (12345, 12346);");
+        try {
+            spy.dataValidationAndGoOn(connection);
+            Assertions.fail();
+        } catch (Exception e) {
+            Assertions.assertTrue(e instanceof SQLException);
+        }
+
+        // case 3: before == current after:2 -> current:0
+        execSQL("delete from table_name where id in (12345, 12346);");
+        Assertions.assertFalse(spy.dataValidationAndGoOn(connection));
+
+        // case 4: before == after   before:0 -> after:0
+        afterImage = execQuery(tableMeta, "SELECT * FROM table_name WHERE id IN (12345, 12346);");
+        sqlUndoLog.setAfterImage(afterImage);
+        Assertions.assertFalse(spy.dataValidationAndGoOn(connection));
+    }
+
+    @Test
     public void testParsePK() {
         TableMeta tableMeta = Mockito.mock(TableMeta.class);
         Mockito.when(tableMeta.getPrimaryKeyOnlyName()).thenReturn(Arrays.asList(new String[]{"id"}));

@@ -16,6 +16,7 @@
 package io.seata.rm.datasource.exec;
 
 import java.lang.reflect.Field;
+import java.sql.SQLException;
 import java.sql.Types;
 import java.util.List;
 import com.alibaba.druid.mock.MockStatement;
@@ -32,6 +33,8 @@ import io.seata.rm.datasource.StatementProxy;
 import io.seata.rm.datasource.mock.MockConnectionProxy;
 import io.seata.rm.datasource.mock.MockDriver;
 import io.seata.rm.datasource.mock.MockLockConflictConnectionProxy;
+import io.seata.rm.datasource.sql.struct.TableRecords;
+import io.seata.sqlparser.druid.mysql.MySQLDeleteRecognizer;
 import io.seata.sqlparser.druid.mysql.MySQLSelectForUpdateRecognizer;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -90,30 +93,19 @@ public class SelectForUpdateExecutorTest {
     }
 
     @Test
-    public void testDoExecute() throws Throwable {
-        Assertions.assertThrows(RuntimeException.class, () -> selectForUpdateExecutor.doExecute((Object) null));
-        RootContext.bind("xid");
-        Assertions.assertDoesNotThrow(() -> {
-            selectForUpdateExecutor.doExecute((Object) null);
-        });
-        RootContext.unbind();
+    public void testBeforeImage() throws SQLException {
+        Assertions.assertEquals(0, selectForUpdateExecutor.beforeImage().size());
+    }
 
-        RootContext.bindGlobalLockFlag();
-        Assertions.assertDoesNotThrow(() -> {
-            selectForUpdateExecutor.doExecute((Object) null);
-        });
-        RootContext.unbindGlobalLockFlag();
-
-        connectionProxy = new MockLockConflictConnectionProxy(connectionProxy.getDataSourceProxy(), connectionProxy.getTargetConnection());
-        statementProxy = new StatementProxy(connectionProxy, statementProxy.getTargetStatement());
-        statementProxy.getTargetStatement().getConnection().setAutoCommit(false);
-        String sql = "select * from dual";
+    @Test
+    public void testAfterImage() throws SQLException {
+        String sql = "select * from t for update";
         List<SQLStatement> asts = SQLUtils.parseStatements(sql, JdbcConstants.MYSQL);
         MySQLSelectForUpdateRecognizer recognizer = new MySQLSelectForUpdateRecognizer(sql, asts.get(0));
         selectForUpdateExecutor = new SelectForUpdateExecutor(statementProxy, (statement, args) -> null, recognizer);
 
-        RootContext.bind("xid");
-        Assertions.assertThrows(LockWaitTimeoutException.class, () -> selectForUpdateExecutor.doExecute((Object) null));
-        RootContext.unbind();
+        TableRecords afterImage = selectForUpdateExecutor.afterImage(selectForUpdateExecutor.beforeImage());
+        Assertions.assertNotNull(afterImage);
+        Assertions.assertEquals(2, afterImage.size());
     }
 }

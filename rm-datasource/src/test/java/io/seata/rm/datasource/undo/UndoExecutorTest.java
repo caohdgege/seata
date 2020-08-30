@@ -295,6 +295,76 @@ public class UndoExecutorTest {
     }
 
     /**
+     * Test selectForUpdate.
+     */
+    @Test
+    public void testSelectForUpdate() throws SQLException {
+        SQLUndoLog sqlUndoLog = new SQLUndoLog();
+        sqlUndoLog.setTableName("my_test_table");
+        sqlUndoLog.setSqlType(SQLType.SELECT_FOR_UPDATE);
+
+        TableRecords beforeImage = TableRecords.empty(new MockTableMeta("product", "id"));
+
+        TableRecords afterImage = new TableRecords(new MockTableMeta("product", "id"));
+
+        Row afterRow1 = new Row();
+
+        Field pkField = new Field();
+        pkField.setKeyType(KeyType.PRIMARY_KEY);
+        pkField.setName("id");
+        pkField.setType(Types.INTEGER);
+        pkField.setValue(213);
+        afterRow1.add(pkField);
+
+        Field name = new Field();
+        name.setName("name");
+        name.setType(Types.VARCHAR);
+        name.setValue("SEATA");
+        afterRow1.add(name);
+
+        Field since = new Field();
+        since.setName("since");
+        since.setType(Types.VARCHAR);
+        since.setValue("2014");
+        afterRow1.add(since);
+
+        Row afterRow = new Row();
+
+        Field pkField1 = new Field();
+        pkField1.setKeyType(KeyType.PRIMARY_KEY);
+        pkField1.setName("id");
+        pkField1.setType(Types.INTEGER);
+        pkField1.setValue(214);
+        afterRow.add(pkField1);
+
+        Field name1 = new Field();
+        name1.setName("name");
+        name1.setType(Types.VARCHAR);
+        name1.setValue("GTS");
+        afterRow.add(name1);
+
+        Field since1 = new Field();
+        since1.setName("since");
+        since1.setType(Types.VARCHAR);
+        since1.setValue("2016");
+        afterRow.add(since1);
+
+        afterImage.add(afterRow1);
+        afterImage.add(afterRow);
+
+        sqlUndoLog.setAfterImage(afterImage);
+        sqlUndoLog.setBeforeImage(beforeImage);
+
+        AbstractUndoExecutor executor = UndoExecutorFactory.getUndoExecutor(JdbcConstants.MYSQL, sqlUndoLog);
+        MockConnection connection = new MockConnection();
+        AbstractUndoExecutor spy = Mockito.spy(executor);
+        // skip data validation
+        Mockito.doReturn(true).when(spy).dataValidationAndGoOn(connection);
+        Mockito.doReturn(JdbcConstants.MYSQL).when(spy).getDbType(connection);
+        spy.executeOn(connection);
+    }
+
+    /**
      * The type Mock table meta.
      */
     public static class MockTableMeta extends TableMeta {
