@@ -44,6 +44,9 @@ public class UndoExecutorFactory {
             case DELETE:
                 result = holder.getDeleteExecutor(sqlUndoLog);
                 break;
+            case SELECT_FOR_UPDATE:
+                result = holder.getSelectForUpdateExecutor(sqlUndoLog);
+                break;
             default:
                 throw new ShouldNeverHappenException();
         }

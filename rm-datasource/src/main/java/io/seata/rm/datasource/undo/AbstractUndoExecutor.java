@@ -131,7 +131,8 @@ public abstract class AbstractUndoExecutor {
 
                 undoPrepare(undoPST, undoValues, pkValueList);
 
-                undoPST.executeUpdate();
+                // use execute but not executeUpdate to compatible select for update
+                undoPST.execute();
             }
 
         } catch (Exception ex) {

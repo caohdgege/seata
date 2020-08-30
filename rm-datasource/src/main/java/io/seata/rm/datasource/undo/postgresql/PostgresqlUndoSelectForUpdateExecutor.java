@@ -19,6 +19,8 @@ import io.seata.rm.datasource.sql.struct.TableRecords;
 import io.seata.rm.datasource.undo.AbstractUndoExecutor;
 import io.seata.rm.datasource.undo.SQLUndoLog;
 
+import java.util.List;
+
 public class PostgresqlUndoSelectForUpdateExecutor extends AbstractUndoExecutor {
     /**
      * Instantiates a new Abstract undo executor.
@@ -31,7 +33,12 @@ public class PostgresqlUndoSelectForUpdateExecutor extends AbstractUndoExecutor 
 
     @Override
     protected String buildUndoSQL() {
-        return "select 1";
+        StringBuilder sb = new StringBuilder("SELECT ");
+        List<String> pkNames = sqlUndoLog.getAfterImage().getTableMeta().getPrimaryKeyOnlyName();
+        for (String pk : pkNames) {
+            sb.append("?, ");
+        }
+        return sb.delete(sb.length() - 2, sb.length()).toString();
     }
 
     @Override
