@@ -36,8 +36,6 @@ import org.slf4j.LoggerFactory;
  */
 public class SelectForUpdateExecutor<T, S extends Statement> extends BaseTransactionalExecutor<T, S> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SelectForUpdateExecutor.class);
-
     /**
      * Instantiates a new Select for update executor.
      *
