@@ -15,8 +15,6 @@
  */
 package io.seata.rm.datasource;
 
-import io.seata.common.util.CollectionUtils;
-import io.seata.sqlparser.struct.Null;
 import java.io.InputStream;
 import java.io.Reader;
 import java.math.BigDecimal;
@@ -41,6 +39,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import io.seata.sqlparser.struct.Null;
 /**
  * The type Abstract prepared statement proxy.
  *
@@ -102,8 +101,7 @@ public abstract class AbstractPreparedStatementProxy extends StatementProxy<Prep
      * @param x     the x
      */
     protected void setParamByIndex(int index, Object x) {
-        CollectionUtils.computeIfAbsent(parameters, index, e -> new ArrayList<>())
-                .add(x);
+        parameters.put(index, new ArrayList<Object>(){{add(x);}});
     }
 
     @Override
