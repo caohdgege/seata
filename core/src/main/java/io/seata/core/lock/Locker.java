@@ -15,6 +15,7 @@
  */
 package io.seata.core.lock;
 
+import java.sql.SQLType;
 import java.util.List;
 
 /**
@@ -28,9 +29,10 @@ public interface Locker {
      * Acquire lock boolean.
      *
      * @param rowLock the row lock
+     * @param sqlType
      * @return the boolean
      */
-    boolean acquireLock(List<RowLock> rowLock) ;
+    boolean acquireLock(List<RowLock> rowLock, String sqlType) ;
 
     /**
      * Un lock boolean.

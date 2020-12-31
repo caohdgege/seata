@@ -32,14 +32,22 @@ public interface LockStore {
      */
     boolean acquireLock(LockDO lockDO);
 
+    /**
+     * Acquire lock boolean.
+     *
+     * @param lockDOs the lock dos
+     * @return the boolean
+     */
+    boolean acquireLock(List<LockDO> lockDOs);
 
     /**
      * Acquire lock boolean.
      *
-     * @param lockDOs the lock d os
+     * @param lockDOs the lock dos
+     * @param sqlType the sql type
      * @return the boolean
      */
-    boolean acquireLock(List<LockDO> lockDOs);
+    boolean acquireLock(List<LockDO> lockDOs, String sqlType);
 
     /**
      * Un lock boolean.

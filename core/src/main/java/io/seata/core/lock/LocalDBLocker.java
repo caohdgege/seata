@@ -25,7 +25,7 @@ import java.util.List;
 public class LocalDBLocker extends AbstractLocker {
 
     @Override
-    public boolean acquireLock(List<RowLock> rowLock) {
+    public boolean acquireLock(List<RowLock> rowLock, String sqlType) {
         return false;
     }
 

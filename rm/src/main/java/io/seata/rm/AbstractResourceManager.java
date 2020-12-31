@@ -51,11 +51,12 @@ public abstract class AbstractResourceManager implements ResourceManager {
      * @param clientId   the client id
      * @param xid        the xid
      * @param lockKeys   the lock keys
+     * @param sqlType
      * @return
      * @throws TransactionException
      */
     @Override
-    public Long branchRegister(BranchType branchType, String resourceId, String clientId, String xid, String applicationData, String lockKeys) throws TransactionException {
+    public Long branchRegister(BranchType branchType, String resourceId, String clientId, String xid, String applicationData, String lockKeys, String sqlType) throws TransactionException {
         try {
             BranchRegisterRequest request = new BranchRegisterRequest();
             request.setXid(xid);

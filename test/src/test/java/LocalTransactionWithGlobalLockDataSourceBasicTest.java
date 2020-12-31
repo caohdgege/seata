@@ -199,7 +199,7 @@ public class LocalTransactionWithGlobalLockDataSourceBasicTest {
     public static class MockDataSourceManager extends DataSourceManager {
 
         @Override
-        public Long branchRegister(BranchType branchType, String resourceId, String clientId, String xid, String applicationData, String lockKeys)
+        public Long branchRegister(BranchType branchType, String resourceId, String clientId, String xid, String applicationData, String lockKeys, String sqlType)
                 throws TransactionException {
             throw new RuntimeException("this method should not be called!");
         }

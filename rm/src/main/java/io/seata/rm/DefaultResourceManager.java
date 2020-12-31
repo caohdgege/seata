@@ -91,10 +91,10 @@ public class DefaultResourceManager implements ResourceManager {
 
     @Override
     public Long branchRegister(BranchType branchType, String resourceId,
-                               String clientId, String xid, String applicationData, String lockKeys)
+                               String clientId, String xid, String applicationData, String lockKeys, String sqlType)
         throws TransactionException {
         return getResourceManager(branchType).branchRegister(branchType, resourceId, clientId, xid, applicationData,
-            lockKeys);
+            lockKeys, sqlType);
     }
 
     @Override

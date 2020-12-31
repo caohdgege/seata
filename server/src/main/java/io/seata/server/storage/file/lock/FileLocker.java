@@ -57,7 +57,7 @@ public class FileLocker extends AbstractLocker {
     }
 
     @Override
-    public boolean acquireLock(List<RowLock> rowLocks) {
+    public boolean acquireLock(List<RowLock> rowLocks, String sqlType) {
         if (CollectionUtils.isEmpty(rowLocks)) {
             //no lock
             return true;

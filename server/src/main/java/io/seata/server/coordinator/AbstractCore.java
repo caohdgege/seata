@@ -67,7 +67,7 @@ public abstract class AbstractCore implements Core {
 
     @Override
     public Long branchRegister(BranchType branchType, String resourceId, String clientId, String xid,
-                               String applicationData, String lockKeys) throws TransactionException {
+                               String applicationData, String lockKeys, String sqlType) throws TransactionException {
         GlobalSession globalSession = assertGlobalSessionNotNull(xid, false);
         return SessionHolder.lockAndExecute(globalSession, () -> {
             globalSessionStatusCheck(globalSession);

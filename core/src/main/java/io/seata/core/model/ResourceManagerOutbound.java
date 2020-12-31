@@ -33,11 +33,12 @@ public interface ResourceManagerOutbound {
      * @param xid        the xid
      * @param applicationData the context
      * @param lockKeys   the lock keys
+     * @param sqlType    the sql type
      * @return the long
      * @throws TransactionException the transaction exception
      */
-    Long branchRegister(BranchType branchType, String resourceId, String clientId, String xid, String applicationData, String lockKeys) throws
-        TransactionException;
+    Long branchRegister(BranchType branchType, String resourceId, String clientId, String xid, String applicationData, String lockKeys, String sqlType)
+            throws TransactionException;
 
     /**
      * Branch report.

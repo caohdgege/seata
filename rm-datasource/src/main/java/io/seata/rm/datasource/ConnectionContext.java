@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Set;
 
 import io.seata.common.exception.ShouldNeverHappenException;
+import io.seata.common.util.CollectionUtils;
 import io.seata.rm.datasource.undo.SQLUndoLog;
 
 /**
@@ -214,6 +215,14 @@ public class ConnectionContext {
      */
     public Set<String> getLockKeysBuffer() {
         return lockKeysBuffer;
+    }
+
+    public String getSQLType() {
+        // have no sql type or the mix sql type
+        if (CollectionUtils.isEmpty(sqlUndoItemsBuffer) || sqlUndoItemsBuffer.size() > 1) {
+            return null;
+        }
+        return sqlUndoItemsBuffer.get(0).getSqlType().name();
     }
 
     @Override

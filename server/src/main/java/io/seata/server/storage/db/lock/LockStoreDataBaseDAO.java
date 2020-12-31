@@ -98,6 +98,11 @@ public class LockStoreDataBaseDAO implements LockStore {
 
     @Override
     public boolean acquireLock(List<LockDO> lockDOs) {
+        return acquireLock(lockDOs, null);
+    }
+
+    @Override
+    public boolean acquireLock(List<LockDO> lockDOs, String sqlType) {
         Connection conn = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
@@ -107,38 +112,41 @@ public class LockStoreDataBaseDAO implements LockStore {
             lockDOs = lockDOs.stream().filter(LambdaUtils.distinctByKey(LockDO::getRowKey)).collect(Collectors.toList());
         }
         try {
+            boolean canLock = true;
             conn = lockStoreDataSource.getConnection();
             if (originalAutoCommit = conn.getAutoCommit()) {
                 conn.setAutoCommit(false);
             }
-            //check lock
-            StringJoiner sj = new StringJoiner(",");
-            for (int i = 0; i < lockDOs.size(); i++) {
-                sj.add("?");
-            }
-            boolean canLock = true;
-            //query
-            String checkLockSQL = LockStoreSqlFactory.getLogStoreSql(dbType).getCheckLockableSql(lockTable, sj.toString());
-            ps = conn.prepareStatement(checkLockSQL);
-            for (int i = 0; i < lockDOs.size(); i++) {
-                ps.setString(i + 1, lockDOs.get(i).getRowKey());
-            }
-            rs = ps.executeQuery();
-            String currentXID = lockDOs.get(0).getXid();
-            while (rs.next()) {
-                String dbXID = rs.getString(ServerTableColumnsName.LOCK_TABLE_XID);
-                if (!StringUtils.equals(dbXID, currentXID)) {
-                    if (LOGGER.isInfoEnabled()) {
-                        String dbPk = rs.getString(ServerTableColumnsName.LOCK_TABLE_PK);
-                        String dbTableName = rs.getString(ServerTableColumnsName.LOCK_TABLE_TABLE_NAME);
-                        Long dbBranchId = rs.getLong(ServerTableColumnsName.LOCK_TABLE_BRANCH_ID);
-                        LOGGER.info("Global lock on [{}:{}] is holding by xid {} branchId {}", dbTableName, dbPk, dbXID,
-                            dbBranchId);
-                    }
-                    canLock &= false;
-                    break;
+
+            if (sqlType == null || !sqlType.equalsIgnoreCase("INSERT")) {
+                //check lock
+                StringJoiner sj = new StringJoiner(",");
+                for (int i = 0; i < lockDOs.size(); i++) {
+                    sj.add("?");
                 }
-                dbExistedRowKeys.add(rs.getString(ServerTableColumnsName.LOCK_TABLE_ROW_KEY));
+                //query
+                String checkLockSQL = LockStoreSqlFactory.getLogStoreSql(dbType).getCheckLockableSql(lockTable, sj.toString());
+                ps = conn.prepareStatement(checkLockSQL);
+                for (int i = 0; i < lockDOs.size(); i++) {
+                    ps.setString(i + 1, lockDOs.get(i).getRowKey());
+                }
+                rs = ps.executeQuery();
+                String currentXID = lockDOs.get(0).getXid();
+                while (rs.next()) {
+                    String dbXID = rs.getString(ServerTableColumnsName.LOCK_TABLE_XID);
+                    if (!StringUtils.equals(dbXID, currentXID)) {
+                        if (LOGGER.isInfoEnabled()) {
+                            String dbPk = rs.getString(ServerTableColumnsName.LOCK_TABLE_PK);
+                            String dbTableName = rs.getString(ServerTableColumnsName.LOCK_TABLE_TABLE_NAME);
+                            Long dbBranchId = rs.getLong(ServerTableColumnsName.LOCK_TABLE_BRANCH_ID);
+                            LOGGER.info("Global lock on [{}:{}] is holding by xid {} branchId {}", dbTableName, dbPk, dbXID,
+                                    dbBranchId);
+                        }
+                        canLock = false;
+                        break;
+                    }
+                    dbExistedRowKeys.add(rs.getString(ServerTableColumnsName.LOCK_TABLE_ROW_KEY));
+                }
             }
 
             if (!canLock) {

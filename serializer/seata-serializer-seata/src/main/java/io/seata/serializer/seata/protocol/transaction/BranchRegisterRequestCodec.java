@@ -15,6 +15,7 @@
  */
 package io.seata.serializer.seata.protocol.transaction;
 
+import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 
 import io.netty.buffer.ByteBuf;
@@ -41,6 +42,7 @@ public class BranchRegisterRequestCodec extends AbstractTransactionRequestToTCCo
         BranchType branchType = branchRegisterRequest.getBranchType();
         String resourceId = branchRegisterRequest.getResourceId();
         String lockKey = branchRegisterRequest.getLockKey();
+        String sqlType = branchRegisterRequest.getSqlType();
         String applicationData = branchRegisterRequest.getApplicationData();
 
         byte[] lockKeyBytes = null;
@@ -95,6 +97,17 @@ public class BranchRegisterRequestCodec extends AbstractTransactionRequestToTCCo
         } else {
             out.writeInt(0);
         }
+
+        // 6. sql type
+        if (sqlType != null) {
+            byte[] bs = sqlType.getBytes(UTF8);
+            out.writeShort((short)bs.length);
+            if (bs.length > 0) {
+                out.writeBytes(bs);
+            }
+        } else {
+            out.writeShort((short) 0);
+        }
     }
 
     @Override
@@ -128,6 +141,16 @@ public class BranchRegisterRequestCodec extends AbstractTransactionRequestToTCCo
             in.get(bs);
             branchRegisterRequest.setApplicationData(new String(bs, UTF8));
         }
+
+        // use try catch to compatible the history version
+        try {
+            short sqlTypeLength = in.getShort();
+            if (sqlTypeLength > 0) {
+                byte[] bs = new byte[sqlTypeLength];
+                in.get(bs);
+                branchRegisterRequest.setSqlType(new String(bs, UTF8));
+            }
+        } catch (BufferUnderflowException ignored) {}
     }
 
 }

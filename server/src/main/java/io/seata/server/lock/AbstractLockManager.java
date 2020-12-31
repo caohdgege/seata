@@ -56,7 +56,7 @@ public abstract class AbstractLockManager implements LockManager {
             // no lock
             return true;
         }
-        return getLocker(branchSession).acquireLock(locks);
+        return getLocker(branchSession).acquireLock(locks, null);
     }
 
     @Override

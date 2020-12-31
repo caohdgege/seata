@@ -36,6 +36,8 @@ public class BranchRegisterRequest extends AbstractTransactionRequestToTC  {
 
     private String applicationData;
 
+    private String sqlType;
+
     /**
      * Gets xid.
      *
@@ -131,6 +133,23 @@ public class BranchRegisterRequest extends AbstractTransactionRequestToTC  {
         this.applicationData = applicationData;
     }
 
+    /**
+     * get sql type
+     * @return sqlType
+     */
+    public String getSqlType() {
+        return sqlType;
+    }
+
+    /**
+     * set sql type
+     *
+     * @param sqlType the sql type
+     */
+    public void setSqlType(String sqlType) {
+        this.sqlType = sqlType;
+    }
+
     @Override
     public AbstractTransactionResponse handle(RpcContext rpcContext) {
         return handler.handle(this, rpcContext);
@@ -150,6 +169,9 @@ public class BranchRegisterRequest extends AbstractTransactionRequestToTC  {
         result.append(",");
         result.append("lockKey=");
         result.append(lockKey);
+        result.append(",");
+        result.append("sqlType=");
+        result.append(sqlType);
 
         return result.toString();
     }

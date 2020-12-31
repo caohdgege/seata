@@ -74,7 +74,7 @@ public class RedisLocker extends AbstractLocker {
     }
 
     @Override
-    public boolean acquireLock(List<RowLock> rowLocks) {
+    public boolean acquireLock(List<RowLock> rowLocks, String sqlType) {
         if (CollectionUtils.isEmpty(rowLocks)) {
             return true;
         }
@@ -91,21 +91,23 @@ public class RedisLocker extends AbstractLocker {
             }
             List<String> needLockKeys = new ArrayList<>();
             needLockDOS.forEach(lockDO -> needLockKeys.add(buildLockKey(lockDO.getRowKey())));
-
-            Pipeline pipeline1 = jedis.pipelined();
-            needLockKeys.stream().forEachOrdered(needLockKey -> pipeline1.hget(needLockKey, XID));
-            List<String> existedLockInfos = (List<String>) (List) pipeline1.syncAndReturnAll();
             Map<String, LockDO> needAddLock = new HashMap<>(needLockKeys.size(), 1);
 
-            for (int i = 0; i < needLockKeys.size(); i++) {
-                String existedLockXid = existedLockInfos.get(i);
-                if (StringUtils.isEmpty(existedLockXid)) {
-                    //If empty,we need to lock this row
-                    needAddLock.put(needLockKeys.get(i), needLockDOS.get(i));
-                } else {
-                    if (!StringUtils.equals(existedLockXid, needLockXid)) {
-                        //If not equals,means the rowkey is holding by another global transaction
-                        return false;
+            if (null == sqlType || !sqlType.equalsIgnoreCase("INSERT")) {
+                Pipeline pipeline1 = jedis.pipelined();
+                needLockKeys.stream().forEachOrdered(needLockKey -> pipeline1.hget(needLockKey, XID));
+                List<String> existedLockInfos = (List<String>) (List) pipeline1.syncAndReturnAll();
+
+                for (int i = 0; i < needLockKeys.size(); i++) {
+                    String existedLockXid = existedLockInfos.get(i);
+                    if (StringUtils.isEmpty(existedLockXid)) {
+                        //If empty,we need to lock this row
+                        needAddLock.put(needLockKeys.get(i), needLockDOS.get(i));
+                    } else {
+                        if (!StringUtils.equals(existedLockXid, needLockXid)) {
+                            //If not equals,means the rowkey is holding by another global transaction
+                            return false;
+                        }
                     }
                 }
             }

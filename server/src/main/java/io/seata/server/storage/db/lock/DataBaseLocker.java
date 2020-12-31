@@ -50,13 +50,13 @@ public class DataBaseLocker extends AbstractLocker {
     }
 
     @Override
-    public boolean acquireLock(List<RowLock> locks) {
+    public boolean acquireLock(List<RowLock> locks, String sqlType) {
         if (CollectionUtils.isEmpty(locks)) {
             // no lock
             return true;
         }
         try {
-            return lockStore.acquireLock(convertToLockDO(locks));
+            return lockStore.acquireLock(convertToLockDO(locks), sqlType);
         } catch (StoreException e) {
             throw e;
         } catch (Exception t) {
