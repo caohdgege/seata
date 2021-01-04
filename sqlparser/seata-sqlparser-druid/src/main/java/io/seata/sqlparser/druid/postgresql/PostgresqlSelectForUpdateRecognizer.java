@@ -15,6 +15,8 @@
  */
 package io.seata.sqlparser.druid.postgresql;
 
+import java.util.List;
+
 import com.alibaba.druid.sql.ast.SQLExpr;
 import com.alibaba.druid.sql.ast.SQLStatement;
 import com.alibaba.druid.sql.ast.statement.SQLExprTableSource;
@@ -27,8 +29,6 @@ import io.seata.sqlparser.ParametersHolder;
 import io.seata.sqlparser.SQLParsingException;
 import io.seata.sqlparser.SQLSelectRecognizer;
 import io.seata.sqlparser.SQLType;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author japsercloud
@@ -55,7 +55,7 @@ public class PostgresqlSelectForUpdateRecognizer extends BasePostgresqlRecognize
 
     @Override
     public String getWhereCondition(final ParametersHolder parametersHolder,
-        final ArrayList<List<Object>> paramAppenderList) {
+        final List<Object> paramAppenderList) {
         SQLSelectQueryBlock selectQueryBlock = getSelect();
         SQLExpr where = selectQueryBlock.getWhere();
         return super.getWhereCondition(where, parametersHolder, paramAppenderList);

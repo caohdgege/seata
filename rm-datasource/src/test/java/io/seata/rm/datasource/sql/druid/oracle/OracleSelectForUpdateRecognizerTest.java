@@ -54,7 +54,7 @@ public class OracleSelectForUpdateRecognizerTest {
         OracleSelectForUpdateRecognizer recognizer = new OracleSelectForUpdateRecognizer(sql, asts.get(0));
         String whereCondition = recognizer.getWhereCondition(new ParametersHolder() {
             @Override
-            public Map<Integer,ArrayList<Object>> getParameters() {
+            public Map<Integer,Object> getParameters() {
                 return null;
             }
         }, new ArrayList<>());

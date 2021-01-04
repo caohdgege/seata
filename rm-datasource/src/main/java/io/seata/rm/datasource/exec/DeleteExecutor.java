@@ -56,12 +56,12 @@ public class DeleteExecutor<T, S extends Statement> extends AbstractDMLBaseExecu
     protected TableRecords beforeImage() throws SQLException {
         SQLDeleteRecognizer visitor = (SQLDeleteRecognizer) sqlRecognizer;
         TableMeta tmeta = getTableMeta(visitor.getTableName());
-        ArrayList<List<Object>> paramAppenderList = new ArrayList<>();
+        List<Object> paramAppenderList = new ArrayList<>();
         String selectSQL = buildBeforeImageSQL(visitor, tmeta, paramAppenderList);
         return buildTableRecords(tmeta, selectSQL, paramAppenderList);
     }
 
-    private String buildBeforeImageSQL(SQLDeleteRecognizer visitor, TableMeta tableMeta, ArrayList<List<Object>> paramAppenderList) {
+    private String buildBeforeImageSQL(SQLDeleteRecognizer visitor, TableMeta tableMeta, List<Object> paramAppenderList) {
         String whereCondition = buildWhereCondition(visitor, paramAppenderList);
         StringBuilder suffix = new StringBuilder(" FROM ").append(getFromTableInSQL());
         if (StringUtils.isNotBlank(whereCondition)) {

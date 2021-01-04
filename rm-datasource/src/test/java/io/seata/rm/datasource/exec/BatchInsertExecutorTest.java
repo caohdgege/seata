@@ -30,6 +30,7 @@ import org.mockito.Mockito;
 
 import java.sql.SQLException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -185,7 +186,7 @@ public class BatchInsertExecutorTest {
     }
 
     private void mockParameters_with_null_and_insertRows_with_placeholder_null() {
-        Map<Integer,ArrayList<Object>> paramters = new HashMap<>(5);
+        Map<Integer,Object> paramters = new HashMap<>(5);
         ArrayList arrayList0 = new ArrayList<>();
         arrayList0.add("userId1");
         ArrayList arrayList1 = new ArrayList<>();
@@ -210,7 +211,7 @@ public class BatchInsertExecutorTest {
     }
 
     private void mockParameters_with_number_and_insertRows_with_placeholde_null() {
-        Map<Integer,ArrayList<Object>> paramters = new HashMap<>(5);
+        Map<Integer,Object> paramters = new HashMap<>(5);
         ArrayList arrayList0 = new ArrayList<>();
         arrayList0.add("userId1");
         ArrayList arrayList1 = new ArrayList<>();
@@ -246,7 +247,7 @@ public class BatchInsertExecutorTest {
 
     private void mockParameters() {
         int PK_INDEX = 1;
-        Map<Integer,ArrayList<Object>> paramters = new HashMap<>();
+        Map<Integer,Object> paramters = new HashMap<>();
         ArrayList arrayList0 = new ArrayList<>();
         arrayList0.add("userId1");
         arrayList0.add("userId2");
@@ -287,73 +288,28 @@ public class BatchInsertExecutorTest {
 
     private void mockParametersAllRefOfMysql() {
 
-        Map<Integer,ArrayList<Object>> paramters = new HashMap(20);
-        ArrayList arrayList1 = new ArrayList<>();
-        arrayList1.add("userId1");
-        ArrayList arrayList2 = new ArrayList<>();
-        arrayList2.add(100000001);
-        ArrayList arrayList3 = new ArrayList<>();
-        arrayList3.add("userName1");
-        ArrayList arrayList4 = new ArrayList<>();
-        arrayList4.add("userStatus1");
+        Map<Integer,Object> paramters = new HashMap(20);
 
-        ArrayList arrayList5 = new ArrayList<>();
-        arrayList5.add("userId2");
-        ArrayList arrayList6 = new ArrayList<>();
-        arrayList6.add(100000002);
-        ArrayList arrayList7 = new ArrayList<>();
-        arrayList7.add("userName2");
-        ArrayList arrayList8 = new ArrayList<>();
-        arrayList8.add("userStatus2");
-
-        ArrayList arrayList9 = new ArrayList<>();
-        arrayList9.add("userId3");
-        ArrayList arrayList10 = new ArrayList<>();
-        arrayList10.add(100000003);
-        ArrayList arrayList11 = new ArrayList<>();
-        arrayList11.add("userName3");
-        ArrayList arrayList12 = new ArrayList<>();
-        arrayList12.add("userStatus3");
-
-        ArrayList arrayList13 = new ArrayList<>();
-        arrayList13.add("userId4");
-        ArrayList arrayList14 = new ArrayList<>();
-        arrayList14.add(100000004);
-        ArrayList arrayList15 = new ArrayList<>();
-        arrayList15.add("userName4");
-        ArrayList arrayList16 = new ArrayList<>();
-        arrayList16.add("userStatus4");
-
-        ArrayList arrayList17 = new ArrayList<>();
-        arrayList17.add("userId5");
-        ArrayList arrayList18 = new ArrayList<>();
-        arrayList18.add(100000005);
-        ArrayList arrayList19 = new ArrayList<>();
-        arrayList19.add("userName5");
-        ArrayList arrayList20 = new ArrayList<>();
-        arrayList20.add("userStatus5");
-
-
-        paramters.put(1,arrayList1);
-        paramters.put(2,arrayList2);
-        paramters.put(3,arrayList3);
-        paramters.put(4,arrayList4);
-        paramters.put(5,arrayList5);
-        paramters.put(6,arrayList6);
-        paramters.put(7,arrayList7);
-        paramters.put(8,arrayList8);
-        paramters.put(9,arrayList9);
-        paramters.put(10,arrayList10);
-        paramters.put(11,arrayList11);
-        paramters.put(12,arrayList12);
-        paramters.put(13,arrayList13);
-        paramters.put(14,arrayList14);
-        paramters.put(15,arrayList15);
-        paramters.put(16,arrayList16);
-        paramters.put(17,arrayList17);
-        paramters.put(18,arrayList18);
-        paramters.put(19,arrayList19);
-        paramters.put(20,arrayList20);
+        paramters.put(1, "userId1");
+        paramters.put(2, "100000001");
+        paramters.put(3, "userName1");
+        paramters.put(4, "userStatus1");
+        paramters.put(5, "userId2");
+        paramters.put(6, 100000002);
+        paramters.put(7, "userName2");
+        paramters.put(8, "userStatus2");
+        paramters.put(9, "userId3");
+        paramters.put(10, 100000003);
+        paramters.put(11, "userName3");
+        paramters.put(12, "userStatus3");
+        paramters.put(13, "userId4");
+        paramters.put(14, 100000004);
+        paramters.put(15, "userName4");
+        paramters.put(16, "userStatus4");
+        paramters.put(17, "userId5");
+        paramters.put(18, 100000005);
+        paramters.put(19, "userName5");
+        paramters.put(20, "userStatus5");
         List<List<Object>> insertRows = new ArrayList<>();
         insertRows.add(Arrays.asList("?", "?", "?", "?"));
         insertRows.add(Arrays.asList("?", "?", "?", "?"));
@@ -367,37 +323,17 @@ public class BatchInsertExecutorTest {
 
     private void mockParametersWithPkRefOfMysql() {
 
-        Map<Integer,ArrayList<Object>> paramters = new HashMap<>(10);
-        ArrayList arrayList1 = new ArrayList<>();
-        arrayList1.add("userId1");
-        ArrayList arrayList2 = new ArrayList<>();
-        arrayList2.add(100000001);
-        ArrayList arrayList3 = new ArrayList<>();
-        arrayList3.add("userId2");
-        ArrayList arrayList4 = new ArrayList<>();
-        arrayList4.add(100000002);
-        ArrayList arrayList5 = new ArrayList<>();
-        arrayList5.add("userId3");
-        ArrayList arrayList6 = new ArrayList<>();
-        arrayList6.add(100000003);
-        ArrayList arrayList7 = new ArrayList<>();
-        arrayList7.add("userId4");
-        ArrayList arrayList8 = new ArrayList<>();
-        arrayList8.add(100000004);
-        ArrayList arrayList9 = new ArrayList<>();
-        arrayList9.add("userId5");
-        ArrayList arrayList10 = new ArrayList<>();
-        arrayList10.add(100000005);
-        paramters.put(1,arrayList1);
-        paramters.put(2,arrayList2);
-        paramters.put(3,arrayList3);
-        paramters.put(4,arrayList4);
-        paramters.put(5,arrayList5);
-        paramters.put(6,arrayList6);
-        paramters.put(7,arrayList7);
-        paramters.put(8,arrayList8);
-        paramters.put(9,arrayList9);
-        paramters.put(10,arrayList10);
+        Map<Integer,Object> paramters = new HashMap<>(10);
+        paramters.put(1, "userId1");
+        paramters.put(2, 100000001);
+        paramters.put(3, "userId2");
+        paramters.put(4, 100000002);
+        paramters.put(5, "userId3");
+        paramters.put(6, 100000003);
+        paramters.put(7, "userId4");
+        paramters.put(8, 100000004);
+        paramters.put(9, "userId5");
+        paramters.put(10, 100000005);
         List<List<Object>> insertRows = new ArrayList<>();
         insertRows.add(Arrays.asList("?", "?", "1", "11"));
         insertRows.add(Arrays.asList("?", "?", "2", "22"));
@@ -411,37 +347,18 @@ public class BatchInsertExecutorTest {
 
     private void mockParametersWithPkUnRefOfMysql() {
 
-        Map<Integer,ArrayList<Object>> paramters = new HashMap<>(10);
-        ArrayList arrayList1 = new ArrayList<>();
-        arrayList1.add("userId1");
-        ArrayList arrayList2 = new ArrayList<>();
-        arrayList2.add(100000001);
-        ArrayList arrayList3 = new ArrayList<>();
-        arrayList3.add("userId2");
-        ArrayList arrayList4 = new ArrayList<>();
-        arrayList4.add(100000002);
-        ArrayList arrayList5 = new ArrayList<>();
-        arrayList5.add("userId3");
-        ArrayList arrayList6 = new ArrayList<>();
-        arrayList6.add(100000003);
-        ArrayList arrayList7 = new ArrayList<>();
-        arrayList7.add("userId4");
-        ArrayList arrayList8 = new ArrayList<>();
-        arrayList8.add(100000004);
-        ArrayList arrayList9 = new ArrayList<>();
-        arrayList9.add("userId5");
-        ArrayList arrayList10 = new ArrayList<>();
-        arrayList10.add(100000005);
-        paramters.put(1,arrayList1);
-        paramters.put(2,arrayList2);
-        paramters.put(3,arrayList3);
-        paramters.put(4,arrayList4);
-        paramters.put(5,arrayList5);
-        paramters.put(6,arrayList6);
-        paramters.put(7,arrayList7);
-        paramters.put(8,arrayList8);
-        paramters.put(9,arrayList9);
-        paramters.put(10,arrayList10);
+        Map<Integer,Object> paramters = new HashMap<>(10);
+        paramters.put(1, "userId1");
+        paramters.put(2, 100000001);
+        paramters.put(3, "userId2");
+        paramters.put(4, 100000002);
+        paramters.put(5, "userId3");
+        paramters.put(6, 100000003);
+        paramters.put(7, "userId4");
+        paramters.put(8, 100000004);
+        paramters.put(9, "userId5");
+        paramters.put(10, 100000005);
+
         List<List<Object>> insertRows = new ArrayList<>();
         insertRows.add(Arrays.asList("?", 100000001, "?", "1"));
         insertRows.add(Arrays.asList("?", 100000002, "?", "2"));
@@ -455,7 +372,7 @@ public class BatchInsertExecutorTest {
 
     private void mockParametersWithAllRefOfJDBC() {
         int PK_INDEX = 1;
-        Map<Integer,ArrayList<Object>> paramters = new HashMap<>(4);
+        Map<Integer,Object> paramters = new HashMap<>(4);
         ArrayList arrayList0 = new ArrayList<>();
         arrayList0.add("userId1");
         arrayList0.add("userId2");
@@ -495,7 +412,7 @@ public class BatchInsertExecutorTest {
 
     private void mockParametersWithPkRefOfJDBC() {
         int PK_INDEX = 1;
-        Map<Integer,ArrayList<Object>> paramters = new HashMap<>(2);
+        Map<Integer,Object> paramters = new HashMap<>(2);
         ArrayList arrayList0 = new ArrayList<>();
         arrayList0.add("userId1");
         arrayList0.add("userId2");
@@ -520,13 +437,9 @@ public class BatchInsertExecutorTest {
 
 
     private void mockParametersWithPkUnRefOfJDBC(int pkId) {
-        Map<Integer,ArrayList<Object>> paramters = new HashMap<>(2);
-        ArrayList arrayList0 = new ArrayList<>();
-        arrayList0.add("userId1");
-        ArrayList arrayList1 = new ArrayList<>();
-        arrayList1.add("userName1");
-        paramters.put(1, arrayList0);
-        paramters.put(2, arrayList1);
+        Map<Integer,Object> paramters = new HashMap<>(2);
+        paramters.put(1, "userId1");
+        paramters.put(2, "userName1");
 
         List<List<Object>> insertRows = new ArrayList<>();
         insertRows.add(Arrays.asList("?", pkId, "?", "userStatus"));

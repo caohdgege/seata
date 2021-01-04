@@ -102,19 +102,18 @@ public class MySQLUpdateRecognizerTest extends AbstractRecognizerTest {
         Assertions.assertEquals("name2", mySQLUpdateRecognizer.getUpdateColumns().get(1));
         Assertions.assertEquals("name2", mySQLUpdateRecognizer.getUpdateValues().get(1));
 
-        ArrayList<List<Object>> paramAppenderList = new ArrayList<>();
+        List<Object> paramAppenderList = new ArrayList<>();
         String whereCondition = mySQLUpdateRecognizer.getWhereCondition(new ParametersHolder() {
             @Override
-            public Map<Integer,ArrayList<Object>> getParameters() {
-                ArrayList<Object> idParam = new ArrayList<>();
-                idParam.add("id1");
+            public Map<Integer,Object> getParameters() {
+                Object idParam = "id1";
                 Map result = new HashMap();
                 result.put(1, idParam);
                 return result;
             }
         }, paramAppenderList);
 
-        Assertions.assertEquals(Collections.singletonList(Collections.singletonList("id1")), paramAppenderList);
+        Assertions.assertEquals(Collections.singletonList("id1"), paramAppenderList);
 
         Assertions.assertEquals("id = ?", whereCondition);
     }
@@ -139,14 +138,12 @@ public class MySQLUpdateRecognizerTest extends AbstractRecognizerTest {
         Assertions.assertEquals("name2", mySQLUpdateRecognizer.getUpdateColumns().get(1));
         Assertions.assertEquals("name2", mySQLUpdateRecognizer.getUpdateValues().get(1));
 
-        ArrayList<List<Object>> paramAppenderList = new ArrayList<>();
+        List<Object> paramAppenderList = new ArrayList<>();
         String whereCondition = mySQLUpdateRecognizer.getWhereCondition(new ParametersHolder() {
             @Override
-            public Map<Integer,ArrayList<Object>> getParameters() {
-                ArrayList<Object> id1Param = new ArrayList<>();
-                id1Param.add("id1");
-                ArrayList<Object> id2Param = new ArrayList<>();
-                id2Param.add("id2");
+            public Map<Integer,Object> getParameters() {
+                Object id1Param = "id1";
+                Object id2Param = "id2";
                 Map result = new HashMap();
                 result.put(1, id1Param);
                 result.put(2, id2Param);
@@ -154,7 +151,7 @@ public class MySQLUpdateRecognizerTest extends AbstractRecognizerTest {
             }
         }, paramAppenderList);
 
-        Assertions.assertEquals(Collections.singletonList(Arrays.asList("id1", "id2")), paramAppenderList);
+        Assertions.assertEquals(Arrays.asList("id1", "id2"), paramAppenderList);
 
         Assertions.assertEquals("id IN (?, ?)", whereCondition);
     }
@@ -179,16 +176,13 @@ public class MySQLUpdateRecognizerTest extends AbstractRecognizerTest {
         Assertions.assertEquals("name2", mySQLUpdateRecognizer.getUpdateColumns().get(1));
         Assertions.assertEquals("name2", mySQLUpdateRecognizer.getUpdateValues().get(1));
 
-        ArrayList<List<Object>> paramAppenderList = new ArrayList<>();
+        List<Object> paramAppenderList = new ArrayList<>();
         String whereCondition = mySQLUpdateRecognizer.getWhereCondition(new ParametersHolder() {
             @Override
-            public Map<Integer,ArrayList<Object>> getParameters() {
-                ArrayList<Object> id1Param = new ArrayList<>();
-                id1Param.add("id1");
-                ArrayList<Object> id2Param = new ArrayList<>();
-                id2Param.add("id2");
-                ArrayList<Object> name1Param = new ArrayList<>();
-                name1Param.add("name");
+            public Map<Integer,Object> getParameters() {
+                Object id1Param = "id1";
+                Object id2Param = "id2";
+                Object name1Param = "name";
                 Map result = new HashMap();
                 result.put(1, id1Param);
                 result.put(2, id2Param);
@@ -197,7 +191,7 @@ public class MySQLUpdateRecognizerTest extends AbstractRecognizerTest {
             }
         }, paramAppenderList);
 
-        Assertions.assertEquals(Collections.singletonList(Arrays.asList("id1", "id2", "name")), paramAppenderList);
+        Assertions.assertEquals(Arrays.asList("id1", "id2", "name"), paramAppenderList);
 
         Assertions.assertEquals("id IN (?, ?)\nAND name1 = ?", whereCondition);
     }
@@ -222,14 +216,12 @@ public class MySQLUpdateRecognizerTest extends AbstractRecognizerTest {
         Assertions.assertEquals("name2", mySQLUpdateRecognizer.getUpdateColumns().get(1));
         Assertions.assertEquals("name2", mySQLUpdateRecognizer.getUpdateValues().get(1));
 
-        ArrayList<List<Object>> paramAppenderList = new ArrayList<>();
+        List<Object> paramAppenderList = new ArrayList<>();
         String whereCondition = mySQLUpdateRecognizer.getWhereCondition(new ParametersHolder() {
             @Override
-            public Map<Integer,ArrayList<Object>> getParameters() {
-                ArrayList<Object> id1Param = new ArrayList<>();
-                id1Param.add("id1");
-                ArrayList<Object> id2Param = new ArrayList<>();
-                id2Param.add("id2");
+            public Map<Integer,Object> getParameters() {
+                Object id1Param = "id1";
+                Object id2Param = "id2";
                 Map result = new HashMap();
                 result.put(1, id1Param);
                 result.put(2, id2Param);
@@ -237,7 +229,7 @@ public class MySQLUpdateRecognizerTest extends AbstractRecognizerTest {
             }
         }, paramAppenderList);
 
-        Assertions.assertEquals(Collections.singletonList(Arrays.asList("id1", "id2")), paramAppenderList);
+        Assertions.assertEquals(Arrays.asList("id1", "id2"), paramAppenderList);
         Assertions.assertEquals("id BETWEEN ? AND ?", whereCondition);
     }
 

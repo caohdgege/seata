@@ -80,7 +80,7 @@ public class SelectForUpdateExecutor<T, S extends Statement> extends BaseTransac
             }
 
             LockRetryController lockRetryController = new LockRetryController();
-            ArrayList<List<Object>> paramAppenderList = new ArrayList<>();
+            List<Object> paramAppenderList = new ArrayList<>();
             String selectPKSQL = buildSelectSQL(paramAppenderList);
             while (true) {
                 try {
@@ -131,7 +131,7 @@ public class SelectForUpdateExecutor<T, S extends Statement> extends BaseTransac
         return rs;
     }
 
-    private String buildSelectSQL(ArrayList<List<Object>> paramAppenderList) {
+    private String buildSelectSQL(List<Object> paramAppenderList) {
         SQLSelectRecognizer recognizer = (SQLSelectRecognizer)sqlRecognizer;
         StringBuilder selectSQLAppender = new StringBuilder("SELECT ");
         selectSQLAppender.append(getColumnNamesInSQL(getTableMeta().getEscapePkNameList(getDbType())));

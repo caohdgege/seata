@@ -70,7 +70,7 @@ public class PostgresqlDeleteRecognizerTest {
         SQLDeleteRecognizer recognizer = (SQLDeleteRecognizer) sqlRecognizers.get(0);
         String whereCondition = recognizer.getWhereCondition(new ParametersHolder() {
             @Override
-            public Map<Integer,ArrayList<Object>> getParameters() {
+            public Map<Integer,Object> getParameters() {
                 return null;
             }
         }, new ArrayList<>());

@@ -18,7 +18,6 @@ package io.seata.rm.datasource;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Map;
 
 import io.seata.rm.datasource.exec.ExecuteTemplate;
@@ -33,7 +32,7 @@ public class PreparedStatementProxy extends AbstractPreparedStatementProxy
     implements PreparedStatement, ParametersHolder {
 
     @Override
-    public Map<Integer,ArrayList<Object>> getParameters() {
+    public Map<Integer,Object> getParameters() {
         return parameters;
     }
 

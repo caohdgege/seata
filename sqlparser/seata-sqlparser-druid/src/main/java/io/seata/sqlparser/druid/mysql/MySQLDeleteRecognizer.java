@@ -15,6 +15,8 @@
  */
 package io.seata.sqlparser.druid.mysql;
 
+import java.util.List;
+
 import com.alibaba.druid.sql.ast.SQLExpr;
 import com.alibaba.druid.sql.ast.SQLStatement;
 import com.alibaba.druid.sql.ast.statement.SQLExprTableSource;
@@ -24,10 +26,6 @@ import com.alibaba.druid.sql.dialect.mysql.visitor.MySqlOutputVisitor;
 import io.seata.sqlparser.ParametersHolder;
 import io.seata.sqlparser.SQLDeleteRecognizer;
 import io.seata.sqlparser.SQLType;
-
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * The type My sql delete recognizer.
  *
@@ -82,7 +80,7 @@ public class MySQLDeleteRecognizer extends BaseMySQLRecognizer implements SQLDel
 
     @Override
     public String getWhereCondition(final ParametersHolder parametersHolder,
-                                    final ArrayList<List<Object>> paramAppenderList) {
+                                    final List<Object> paramAppenderList) {
         SQLExpr where = ast.getWhere();
         return super.getWhereCondition(where, parametersHolder, paramAppenderList);
     }
@@ -94,7 +92,7 @@ public class MySQLDeleteRecognizer extends BaseMySQLRecognizer implements SQLDel
     }
 
     @Override
-    public String getLimit(ParametersHolder parametersHolder, ArrayList<List<Object>> paramAppenderList) {
+    public String getLimit(ParametersHolder parametersHolder, List<Object> paramAppenderList) {
         return super.getLimit(ast, getSQLType(), parametersHolder, paramAppenderList);
     }
 

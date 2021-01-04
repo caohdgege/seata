@@ -15,6 +15,10 @@
  */
 package io.seata.sqlparser.druid.postgresql;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
 import com.alibaba.druid.sql.ast.SQLExpr;
 import com.alibaba.druid.sql.ast.SQLStatement;
 import com.alibaba.druid.sql.ast.expr.SQLDefaultExpr;
@@ -38,9 +42,6 @@ import io.seata.sqlparser.struct.Null;
 import io.seata.sqlparser.struct.SqlDefaultExpr;
 import io.seata.sqlparser.struct.SqlMethodExpr;
 import io.seata.sqlparser.struct.SqlSequenceExpr;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 
 /**
  * @author japsercloud

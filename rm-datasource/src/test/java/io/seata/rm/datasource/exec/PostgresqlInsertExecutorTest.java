@@ -104,7 +104,7 @@ public class PostgresqlInsertExecutorTest {
     }
 
     private void mockParametersPkWithDefault() {
-        Map<Integer,ArrayList<Object>> parameters = new HashMap<>(4);
+        Map<Integer, Object> parameters = new HashMap<>(4);
         ArrayList arrayList0 = new ArrayList<>();
         arrayList0.add(SqlDefaultExpr.get());
         ArrayList arrayList1 = new ArrayList<>();

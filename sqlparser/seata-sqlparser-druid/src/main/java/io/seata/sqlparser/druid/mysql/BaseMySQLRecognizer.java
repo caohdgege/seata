@@ -15,7 +15,6 @@
  */
 package io.seata.sqlparser.druid.mysql;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -53,21 +52,15 @@ public abstract class BaseMySQLRecognizer extends BaseRecognizer {
     }
 
     public MySqlOutputVisitor createOutputVisitor(final ParametersHolder parametersHolder,
-                                                  final ArrayList<List<Object>> paramAppenderList,
+                                                  final List<Object> paramAppenderList,
                                                   final StringBuilder sb) {
         return new MySqlOutputVisitor(sb) {
 
             @Override
             public boolean visit(SQLVariantRefExpr x) {
                 if ("?".equals(x.getName())) {
-                    ArrayList<Object> oneParamValues = parametersHolder.getParameters().get(x.getIndex() + 1);
-                    if (paramAppenderList.isEmpty()) {
-                        oneParamValues.forEach(t -> paramAppenderList.add(new ArrayList<>()));
-                    }
-                    for (int i = 0; i < oneParamValues.size(); i++) {
-                        Object o = oneParamValues.get(i);
-                        paramAppenderList.get(i).add(o instanceof Null ? null : o);
-                    }
+                    Object param = parametersHolder.getParameters().get(x.getIndex() + 1);
+                    paramAppenderList.add(param instanceof Null ? null : param);
                 }
                 return super.visit(x);
             }
@@ -75,7 +68,7 @@ public abstract class BaseMySQLRecognizer extends BaseRecognizer {
     }
 
     public String getWhereCondition(SQLExpr where, final ParametersHolder parametersHolder,
-                                    final ArrayList<List<Object>> paramAppenderList) {
+                                    final List<Object> paramAppenderList) {
         if (Objects.isNull(where)) {
             return StringUtils.EMPTY;
         }
@@ -97,7 +90,7 @@ public abstract class BaseMySQLRecognizer extends BaseRecognizer {
         return sb.toString();
     }
 
-    protected String getLimit(SQLStatement sqlStatement, SQLType sqlType, ParametersHolder parametersHolder, ArrayList<List<Object>> paramAppenderList) {
+    protected String getLimit(SQLStatement sqlStatement, SQLType sqlType, ParametersHolder parametersHolder, List<Object> paramAppenderList) {
         SQLLimit limit = null;
         if (SQLType.UPDATE == sqlType) {
             limit = ((MySqlUpdateStatement)sqlStatement).getLimit();
@@ -110,7 +103,7 @@ public abstract class BaseMySQLRecognizer extends BaseRecognizer {
             if (limit.getOffset() != null) {
                 if (limit.getOffset() instanceof SQLVariantRefExpr) {
                     builder.append("?,");
-                    Map<Integer, ArrayList<Object>> parameters = parametersHolder.getParameters();
+                    Map<Integer, Object> parameters = parametersHolder.getParameters();
                     paramAppenderList.add(parameters.get(parameters.size() - 1));
                 } else {
                     expr = (SQLIntegerExpr)limit.getOffset();
@@ -120,7 +113,7 @@ public abstract class BaseMySQLRecognizer extends BaseRecognizer {
             if (limit.getRowCount() != null) {
                 if (limit.getRowCount() instanceof SQLVariantRefExpr) {
                     builder.append("?");
-                    Map<Integer, ArrayList<Object>> parameters = parametersHolder.getParameters();
+                    Map<Integer, Object> parameters = parametersHolder.getParameters();
                     paramAppenderList.add(parameters.get(parameters.size()));
                 } else {
                     expr = (SQLIntegerExpr)limit.getRowCount();

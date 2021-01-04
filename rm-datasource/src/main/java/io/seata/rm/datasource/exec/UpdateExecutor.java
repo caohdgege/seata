@@ -66,13 +66,13 @@ public class UpdateExecutor<T, S extends Statement> extends AbstractDMLBaseExecu
 
     @Override
     protected TableRecords beforeImage() throws SQLException {
-        ArrayList<List<Object>> paramAppenderList = new ArrayList<>();
+        List<Object> paramAppenderList = new ArrayList<>();
         TableMeta tmeta = getTableMeta();
         String selectSQL = buildBeforeImageSQL(tmeta, paramAppenderList);
         return buildTableRecords(tmeta, selectSQL, paramAppenderList);
     }
 
-    private String buildBeforeImageSQL(TableMeta tableMeta, ArrayList<List<Object>> paramAppenderList) {
+    private String buildBeforeImageSQL(TableMeta tableMeta, List<Object> paramAppenderList) {
         SQLUpdateRecognizer recognizer = (SQLUpdateRecognizer) sqlRecognizer;
         List<String> updateColumns = recognizer.getUpdateColumns();
         StringBuilder prefix = new StringBuilder("SELECT ");

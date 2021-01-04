@@ -156,6 +156,7 @@ public class PreparedStatementProxyXA extends StatementProxyXA implements Prepar
     }
 
     @Override
+    @Deprecated
     public void setUnicodeStream(int parameterIndex, InputStream x, int length) throws SQLException {
         getTargetStatement().setUnicodeStream(parameterIndex, x, length);
 

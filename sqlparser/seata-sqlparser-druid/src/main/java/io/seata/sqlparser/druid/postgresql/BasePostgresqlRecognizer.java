@@ -15,6 +15,9 @@
  */
 package io.seata.sqlparser.druid.postgresql;
 
+import java.util.List;
+import java.util.Objects;
+
 import com.alibaba.druid.sql.ast.SQLExpr;
 import com.alibaba.druid.sql.ast.expr.SQLVariantRefExpr;
 import com.alibaba.druid.sql.dialect.postgresql.visitor.PGOutputVisitor;
@@ -22,9 +25,6 @@ import io.seata.common.util.StringUtils;
 import io.seata.sqlparser.ParametersHolder;
 import io.seata.sqlparser.druid.BaseRecognizer;
 import io.seata.sqlparser.struct.Null;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
 
 /**
  * @author will
@@ -41,20 +41,14 @@ public abstract class BasePostgresqlRecognizer extends BaseRecognizer {
     }
 
     public PGOutputVisitor createOutputVisitor(final ParametersHolder parametersHolder,
-        final ArrayList<List<Object>> paramAppenderList, final StringBuilder sb) {
+        final List<Object> paramAppenderList, final StringBuilder sb) {
         PGOutputVisitor visitor = new PGOutputVisitor(sb) {
 
             @Override
             public boolean visit(SQLVariantRefExpr x) {
                 if ("?".equals(x.getName())) {
-                    ArrayList<Object> oneParamValues = parametersHolder.getParameters().get(x.getIndex() + 1);
-                    if (paramAppenderList.size() == 0) {
-                        oneParamValues.forEach(t -> paramAppenderList.add(new ArrayList<>()));
-                    }
-                    for (int i = 0; i < oneParamValues.size(); i++) {
-                        Object o = oneParamValues.get(i);
-                        paramAppenderList.get(i).add(o instanceof Null ? null : o);
-                    }
+                    Object param = parametersHolder.getParameters().get(x.getIndex() + 1);
+                    paramAppenderList.add(param instanceof Null ? null : param);
 
                 }
                 return super.visit(x);
@@ -64,7 +58,7 @@ public abstract class BasePostgresqlRecognizer extends BaseRecognizer {
     }
 
     public String getWhereCondition(SQLExpr where, final ParametersHolder parametersHolder,
-        final ArrayList<List<Object>> paramAppenderList) {
+        final List<Object> paramAppenderList) {
         if (Objects.isNull(where)) {
             return StringUtils.EMPTY;
         }

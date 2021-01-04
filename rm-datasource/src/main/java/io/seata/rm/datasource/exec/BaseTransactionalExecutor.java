@@ -21,6 +21,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Map;
 import java.util.Objects;
+import java.util.List;
 
 import io.seata.common.exception.ShouldNeverHappenException;
 import io.seata.common.util.CollectionUtils;
@@ -40,9 +41,6 @@ import io.seata.sqlparser.ParametersHolder;
 import io.seata.sqlparser.SQLRecognizer;
 import io.seata.sqlparser.SQLType;
 import io.seata.sqlparser.WhereRecognizer;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * The type Base transactional executor.
@@ -131,7 +129,7 @@ public abstract class BaseTransactionalExecutor<T, S extends Statement> implemen
      * @param paramAppenderList the param paramAppender list
      * @return the string
      */
-    protected String buildWhereCondition(WhereRecognizer recognizer, ArrayList<List<Object>> paramAppenderList) {
+    protected String buildWhereCondition(WhereRecognizer recognizer, List<Object> paramAppenderList) {
         String whereCondition = null;
         if (statementProxy instanceof ParametersHolder) {
             whereCondition = recognizer.getWhereCondition((ParametersHolder) statementProxy, paramAppenderList);
@@ -347,15 +345,12 @@ public abstract class BaseTransactionalExecutor<T, S extends Statement> implemen
      * @return a tableRecords
      * @throws SQLException the sql exception
      */
-    protected TableRecords buildTableRecords(TableMeta tableMeta, String selectSQL, ArrayList<List<Object>> paramAppenderList) throws SQLException {
+    protected TableRecords buildTableRecords(TableMeta tableMeta, String selectSQL, List<Object> paramAppenderList) throws SQLException {
         ResultSet rs = null;
         try (PreparedStatement ps = statementProxy.getConnection().prepareStatement(selectSQL)) {
             if (CollectionUtils.isNotEmpty(paramAppenderList)) {
                 for (int i = 0, ts = paramAppenderList.size(); i < ts; i++) {
-                    List<Object> paramAppender = paramAppenderList.get(i);
-                    for (int j = 0, ds = paramAppender.size(); j < ds; j++) {
-                        ps.setObject(i * ds + j + 1, paramAppender.get(j));
-                    }
+                    ps.setObject(i + 1, paramAppenderList.get(i));
                 }
             }
             rs = ps.executeQuery();

@@ -146,7 +146,7 @@ public abstract class BaseInsertExecutor<T, S extends Statement> extends Abstrac
 
             List<List<Object>> insertRows = recognizer.getInsertRows(pkIndexMap.values());
             if (insertRows != null && !insertRows.isEmpty()) {
-                Map<Integer, ArrayList<Object>> parameters = preparedStatementProxy.getParameters();
+                Map<Integer, Object> parameters = preparedStatementProxy.getParameters();
                 final int rowSize = insertRows.size();
                 int totalPlaceholderNum = -1;
                 for (List<Object> row : insertRows) {
@@ -182,8 +182,8 @@ public abstract class BaseInsertExecutor<T, S extends Statement> extends Abstrac
                                 }
                             }
                             int idx = totalPlaceholderNum - currentRowPlaceholderNum + pkIndex - currentRowNotPlaceholderNumBeforePkIndex;
-                            ArrayList<Object> parameter = parameters.get(idx + 1);
-                            pkValues.addAll(parameter);
+                            Object parameter = parameters.get(idx + 1);
+                            pkValues.add(parameter);
                         } else {
                             pkValues.add(pkValue);
                         }

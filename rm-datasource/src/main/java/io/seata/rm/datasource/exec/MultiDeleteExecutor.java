@@ -52,7 +52,7 @@ public class MultiDeleteExecutor<T, S extends Statement> extends AbstractDMLBase
             return executor.beforeImage();
         }
         final TableMeta tmeta = getTableMeta(sqlRecognizers.get(0).getTableName());
-        final ArrayList<List<Object>> paramAppenderList = new ArrayList<>();
+        final List<Object> paramAppenderList = new ArrayList<>();
         StringBuilder whereCondition = new StringBuilder();
         for (SQLRecognizer recognizer : sqlRecognizers) {
             sqlRecognizer = recognizer;

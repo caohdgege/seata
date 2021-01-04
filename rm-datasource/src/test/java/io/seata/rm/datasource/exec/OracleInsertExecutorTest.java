@@ -164,7 +164,7 @@ public class OracleInsertExecutorTest {
 
     private SqlSequenceExpr mockParametersPkWithSeq() {
         SqlSequenceExpr expr = new SqlSequenceExpr("seq", "nextval");
-        Map<Integer,ArrayList<Object>> paramters = new HashMap(4);
+        Map<Integer, Object> paramters = new HashMap(4);
         ArrayList arrayList0 = new ArrayList<>();
         arrayList0.add(expr);
         ArrayList arrayList1 = new ArrayList<>();
@@ -188,7 +188,7 @@ public class OracleInsertExecutorTest {
     }
 
     private void mockParametersPkWithAuto() {
-        Map<Integer,ArrayList<Object>> paramters = new HashMap<>(4);
+        Map<Integer, Object> paramters = new HashMap<>(4);
         ArrayList arrayList0 = new ArrayList<>();
         arrayList0.add(Null.get());
         ArrayList arrayList1 = new ArrayList<>();

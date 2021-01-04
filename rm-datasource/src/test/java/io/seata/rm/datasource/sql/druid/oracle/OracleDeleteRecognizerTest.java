@@ -71,7 +71,7 @@ public class OracleDeleteRecognizerTest {
         OracleDeleteRecognizer recognizer = new OracleDeleteRecognizer(sql, asts.get(0));
         String whereCondition = recognizer.getWhereCondition(new ParametersHolder() {
             @Override
-            public Map<Integer,ArrayList<Object>> getParameters() {
+            public Map<Integer,Object> getParameters() {
                 return null;
             }
         }, new ArrayList<>());
@@ -85,9 +85,8 @@ public class OracleDeleteRecognizerTest {
         recognizer = new OracleDeleteRecognizer(sql, asts.get(0));
         whereCondition = recognizer.getWhereCondition(new ParametersHolder() {
             @Override
-            public Map<Integer,ArrayList<Object>> getParameters() {
-                ArrayList<Object> idParam = new ArrayList<>();
-                idParam.add(1);
+            public Map<Integer, Object> getParameters() {
+                Object idParam = 1;
                 Map result = new HashMap();
                 result.put(1, idParam);
                 return result;
@@ -102,9 +101,8 @@ public class OracleDeleteRecognizerTest {
         recognizer = new OracleDeleteRecognizer(sql, asts.get(0));
         whereCondition = recognizer.getWhereCondition(new ParametersHolder() {
             @Override
-            public Map<Integer,ArrayList<Object>> getParameters() {
-                ArrayList<Object> idParam = new ArrayList<>();
-                idParam.add(1);
+            public Map<Integer, Object> getParameters() {
+                Object idParam = 1;
                 Map result = new HashMap();
                 result.put(1, idParam);
                 return result;
@@ -119,11 +117,9 @@ public class OracleDeleteRecognizerTest {
         recognizer = new OracleDeleteRecognizer(sql, asts.get(0));
         whereCondition = recognizer.getWhereCondition(new ParametersHolder() {
             @Override
-            public Map<Integer,ArrayList<Object>> getParameters() {
-                ArrayList<Object> idParam = new ArrayList<>();
-                idParam.add(1);
-                ArrayList<Object> idParam2 = new ArrayList<>();
-                idParam.add(2);
+            public Map<Integer, Object> getParameters() {
+                Object idParam = 1;
+                Object idParam2 = 2;
                 Map result = new HashMap();
                 result.put(1, idParam);
                 result.put(2, idParam2);
@@ -141,7 +137,7 @@ public class OracleDeleteRecognizerTest {
             deleteAst.setWhere(new OracleArgumentExpr());
             new OracleDeleteRecognizer(s, deleteAst).getWhereCondition(new ParametersHolder() {
                 @Override
-                public Map<Integer,ArrayList<Object>> getParameters() {
+                public Map<Integer, Object> getParameters() {
                     return new HashMap<>();
                 }
             }, new ArrayList<>());

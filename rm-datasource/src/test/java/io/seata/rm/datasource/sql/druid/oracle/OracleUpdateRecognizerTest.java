@@ -116,7 +116,7 @@ public class OracleUpdateRecognizerTest {
         OracleUpdateRecognizer recognizer = new OracleUpdateRecognizer(sql, asts.get(0));
         String whereCondition = recognizer.getWhereCondition(new ParametersHolder() {
             @Override
-            public Map<Integer,ArrayList<Object>> getParameters() {
+            public Map<Integer, Object> getParameters() {
                 return null;
             }
         }, new ArrayList<>());

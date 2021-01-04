@@ -423,6 +423,7 @@ public class UndoExecutorTest {
                 }
 
                 @Override
+                @Deprecated
                 public void setUnicodeStream(int parameterIndex, InputStream x, int length) throws SQLException {
 
                 }

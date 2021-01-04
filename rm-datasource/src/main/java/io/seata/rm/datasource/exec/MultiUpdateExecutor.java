@@ -74,7 +74,7 @@ public class MultiUpdateExecutor<T, S extends Statement> extends AbstractDMLBase
         }
         final TableMeta tmeta = getTableMeta(sqlRecognizers.get(0).getTableName());
 
-        final ArrayList<List<Object>> paramAppenderList = new ArrayList<>();
+        final List<Object> paramAppenderList = new ArrayList<>();
         Set<String> updateColumnsSet = new HashSet<>();
         StringBuilder whereCondition = new StringBuilder();
         boolean noWhereCondition = false;

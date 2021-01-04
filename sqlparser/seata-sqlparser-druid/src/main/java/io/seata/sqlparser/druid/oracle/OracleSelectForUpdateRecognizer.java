@@ -15,6 +15,9 @@
  */
 package io.seata.sqlparser.druid.oracle;
 
+
+import java.util.List;
+
 import com.alibaba.druid.sql.ast.SQLExpr;
 import com.alibaba.druid.sql.ast.SQLStatement;
 import com.alibaba.druid.sql.ast.statement.SQLExprTableSource;
@@ -28,10 +31,6 @@ import io.seata.sqlparser.ParametersHolder;
 import io.seata.sqlparser.SQLParsingException;
 import io.seata.sqlparser.SQLSelectRecognizer;
 import io.seata.sqlparser.SQLType;
-
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * The type oracle select for update recognizer.
  *
@@ -59,7 +58,7 @@ public class OracleSelectForUpdateRecognizer extends BaseOracleRecognizer implem
 
     @Override
     public String getWhereCondition(final ParametersHolder parametersHolder,
-        final ArrayList<List<Object>> paramAppenderList) {
+        final List<Object> paramAppenderList) {
         SQLSelectQueryBlock selectQueryBlock = getSelect();
         SQLExpr where = selectQueryBlock.getWhere();
         return super.getWhereCondition(where, parametersHolder, paramAppenderList);

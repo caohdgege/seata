@@ -576,7 +576,7 @@ public class MySQLInsertExecutorTest {
     }
 
     private void mockParameters() {
-        Map<Integer,ArrayList<Object>> paramters = new HashMap<>(4);
+        Map<Integer, Object> paramters = new HashMap<>(4);
         ArrayList arrayList0 = new ArrayList<>();
         arrayList0.add(PK_VALUE);
         ArrayList arrayList1 = new ArrayList<>();
@@ -594,7 +594,7 @@ public class MySQLInsertExecutorTest {
     }
 
     private void mockParametersPkWithNull() {
-        Map<Integer,ArrayList<Object>> parameters = new HashMap<>(4);
+        Map<Integer, Object> parameters = new HashMap<>(4);
         ArrayList arrayList0 = new ArrayList<>();
         arrayList0.add(Null.get());
         ArrayList arrayList1 = new ArrayList<>();
@@ -612,7 +612,7 @@ public class MySQLInsertExecutorTest {
     }
 
     private void mockParametersOfOnePk() {
-        Map<Integer,ArrayList<Object>> paramters = new HashMap<>(4);
+        Map<Integer, Object> paramters = new HashMap<>(4);
         ArrayList arrayList1 = new ArrayList<>();
         arrayList1.add(PK_VALUE);
         paramters.put(1, arrayList1);

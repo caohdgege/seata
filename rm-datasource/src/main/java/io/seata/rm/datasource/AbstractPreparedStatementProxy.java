@@ -33,10 +33,8 @@ import java.sql.SQLException;
 import java.sql.SQLXML;
 import java.sql.Time;
 import java.sql.Timestamp;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import io.seata.sqlparser.struct.Null;
@@ -51,7 +49,7 @@ public abstract class AbstractPreparedStatementProxy extends StatementProxy<Prep
     /**
      * The Parameters.
      */
-    protected Map<Integer, ArrayList<Object>> parameters;
+    protected Map<Integer, Object> parameters;
 
     private void initParameterHolder() {
         this.parameters = new HashMap<>();
@@ -90,7 +88,7 @@ public abstract class AbstractPreparedStatementProxy extends StatementProxy<Prep
      * @param index the index
      * @return the params by index
      */
-    public List<Object> getParamsByIndex(int index) {
+    public Object getParamsByIndex(int index) {
         return parameters.get(index);
     }
 
@@ -101,7 +99,7 @@ public abstract class AbstractPreparedStatementProxy extends StatementProxy<Prep
      * @param x     the x
      */
     protected void setParamByIndex(int index, Object x) {
-        parameters.put(index, new ArrayList<Object>(){{add(x);}});
+        parameters.put(index, x);
     }
 
     @Override

@@ -110,7 +110,7 @@ public class PostgresqlUpdateRecognizerTest {
         SQLUpdateRecognizer recognizer = (SQLUpdateRecognizer) SQLVisitorFactory.get(sql, DB_TYPE).get(0);
         String whereCondition = recognizer.getWhereCondition(new ParametersHolder() {
             @Override
-            public Map<Integer, ArrayList<Object>> getParameters() {
+            public Map<Integer, Object> getParameters() {
                 return null;
             }
         }, new ArrayList<>());
