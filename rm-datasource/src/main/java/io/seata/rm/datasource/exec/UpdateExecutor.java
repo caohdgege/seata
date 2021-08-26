@@ -36,6 +36,8 @@ import io.seata.rm.datasource.sql.struct.TableMeta;
 import io.seata.rm.datasource.sql.struct.TableRecords;
 import io.seata.sqlparser.SQLRecognizer;
 import io.seata.sqlparser.SQLUpdateRecognizer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The type Update executor.
@@ -45,6 +47,8 @@ import io.seata.sqlparser.SQLUpdateRecognizer;
  * @author sharajava
  */
 public class UpdateExecutor<T, S extends Statement> extends AbstractDMLBaseExecutor<T, S> {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(UpdateExecutor.class);
 
     private static final Configuration CONFIG = ConfigurationFactory.getInstance();
 
@@ -73,7 +77,6 @@ public class UpdateExecutor<T, S extends Statement> extends AbstractDMLBaseExecu
 
     private String buildBeforeImageSQL(TableMeta tableMeta, ArrayList<List<Object>> paramAppenderList) {
         SQLUpdateRecognizer recognizer = (SQLUpdateRecognizer) sqlRecognizer;
-        List<String> updateColumns = recognizer.getUpdateColumns();
         StringBuilder prefix = new StringBuilder("SELECT ");
         StringBuilder suffix = new StringBuilder(" FROM ").append(getFromTableInSQL());
         String whereCondition = buildWhereCondition(recognizer, paramAppenderList);
@@ -91,11 +94,13 @@ public class UpdateExecutor<T, S extends Statement> extends AbstractDMLBaseExecu
         suffix.append(" FOR UPDATE");
         StringJoiner selectSQLJoin = new StringJoiner(", ", prefix.toString(), suffix.toString());
         if (ONLY_CARE_UPDATE_COLUMNS) {
-            if (!containsPK(updateColumns)) {
-                selectSQLJoin.add(getColumnNamesInSQL(tableMeta.getEscapePkNameList(getDbType())));
-            }
-            for (String columnName : updateColumns) {
-                selectSQLJoin.add(columnName);
+            List<String> updateColumns = recognizer.getUpdateColumns();
+
+            for (String columnName : tableMeta.getAllColumns().keySet()) {
+                final String column = ColumnUtils.delEscape(columnName, getDbType());
+                if (tableMeta.isPrimaryKey(column) || tableMeta.isGeneratedColumn(column) || updateColumns.contains(columnName)) {
+                    selectSQLJoin.add(columnName);
+                }
             }
         } else {
             for (String columnName : tableMeta.getAllColumns().keySet()) {
@@ -112,6 +117,8 @@ public class UpdateExecutor<T, S extends Statement> extends AbstractDMLBaseExecu
             return TableRecords.empty(getTableMeta());
         }
         String selectSQL = buildAfterImageSQL(tmeta, beforeImage);
+        LOGGER.info(selectSQL);
+
         ResultSet rs = null;
         try (PreparedStatement pst = statementProxy.getConnection().prepareStatement(selectSQL)) {
             SqlGenerateUtils.setParamForPk(beforeImage.pkRows(), getTableMeta().getPrimaryKeyOnlyName(), pst);
