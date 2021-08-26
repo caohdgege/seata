@@ -41,6 +41,7 @@ public class ColumnMeta {
     private int ordinalPosition;
     private String isNullAble;
     private String isAutoincrement;
+    private String isGeneratedColumn;
 
     /**
      * Instantiates a new Column meta.
@@ -69,6 +70,7 @@ public class ColumnMeta {
                 ", ordinalPosition=" + ordinalPosition +
                 ", isNullAble='" + isNullAble + '\'' +
                 ", isAutoincrement='" + isAutoincrement + '\'' +
+                ", isGeneratedColumn='" + isGeneratedColumn + '\'' +
                 '}';
     }
 
@@ -405,6 +407,24 @@ public class ColumnMeta {
         this.isAutoincrement = isAutoincrement;
     }
 
+    /**
+     * Gets is generatedColumn.
+     *
+     * @return the is generatedColumn
+     */
+    public String getIsGeneratedColumn() {
+        return isGeneratedColumn;
+    }
+
+    /**
+     * Sets is generatedColumn.
+     *
+     * @param isGeneratedColumn the is generatedColumn
+     */
+    public void setIsGeneratedColumn(String isGeneratedColumn) {
+        this.isGeneratedColumn = isGeneratedColumn;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -468,6 +488,9 @@ public class ColumnMeta {
         if (!Objects.equals(columnMeta.isAutoincrement, this.isAutoincrement)) {
             return false;
         }
+        if (!Objects.equals(columnMeta.isGeneratedColumn, this.isGeneratedColumn)) {
+            return false;
+        }
         return true;
     }
 
@@ -491,6 +514,7 @@ public class ColumnMeta {
         hash += Objects.hashCode(ordinalPosition);
         hash += Objects.hashCode(isNullAble);
         hash += Objects.hashCode(isAutoincrement);
+        hash += Objects.hashCode(isGeneratedColumn);
         return hash;
     }
 }

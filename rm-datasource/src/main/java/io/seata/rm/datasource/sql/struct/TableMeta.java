@@ -15,13 +15,8 @@
  */
 package io.seata.rm.datasource.sql.struct;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.TreeMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Objects;
 
 import io.seata.common.exception.NotSupportYetException;
 import io.seata.common.util.CollectionUtils;
@@ -38,8 +33,8 @@ public class TableMeta {
     /**
      * key: column name
      */
-
     private Map<String, ColumnMeta> allColumns = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+
     /**
      * key: index name
      */
@@ -205,5 +200,18 @@ public class TableMeta {
         hash += Objects.hashCode(allColumns);
         hash += Objects.hashCode(allIndexes);
         return hash;
+    }
+
+    public boolean isGeneratedColumn(String column) {
+        final ColumnMeta columnMeta = getAllColumns().get(column);
+        if (null == columnMeta) {
+            return false;
+        }
+
+        return "YES".equalsIgnoreCase(columnMeta.getIsGeneratedColumn());
+    }
+
+    public boolean isPrimaryKey(String column) {
+        return null != getPrimaryKeyMap().get(column);
     }
 }
