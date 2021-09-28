@@ -15,23 +15,20 @@
  */
 package io.seata.rm.datasource.exec;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.Objects;
+import java.sql.*;
+import java.util.*;
 
 import com.google.common.collect.Lists;
+import io.seata.common.DefaultValues;
 import io.seata.common.exception.NotSupportYetException;
 import io.seata.common.exception.ShouldNeverHappenException;
 import io.seata.common.util.CollectionUtils;
+import io.seata.common.util.IOUtil;
+import io.seata.config.ConfigurationFactory;
+import io.seata.core.constants.ConfigurationKeys;
 import io.seata.rm.datasource.ColumnUtils;
 import io.seata.rm.datasource.PreparedStatementProxy;
+import io.seata.rm.datasource.SqlGenerateUtils;
 import io.seata.rm.datasource.StatementProxy;
 import io.seata.rm.datasource.sql.struct.ColumnMeta;
 import io.seata.rm.datasource.sql.struct.TableRecords;
@@ -50,6 +47,9 @@ import org.slf4j.LoggerFactory;
  * @author jsbxyyx
  */
 public abstract class BaseInsertExecutor<T, S extends Statement> extends AbstractDMLBaseExecutor<T, S> implements InsertExecutor<T> {
+
+    private static final boolean ONLY_CARE_UPDATE_COLUMNS = ConfigurationFactory.getInstance().getBoolean(
+            ConfigurationKeys.TRANSACTION_UNDO_ONLY_CARE_UPDATE_COLUMNS, DefaultValues.DEFAULT_ONLY_CARE_UPDATE_COLUMNS);
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BaseInsertExecutor.class);
 
@@ -126,6 +126,57 @@ public abstract class BaseInsertExecutor<T, S extends Statement> extends Abstrac
             }
         }
         return pkIndexMap;
+    }
+
+
+
+    /**
+     * build TableRecords
+     *
+     * @param pkValuesMap the pkValuesMap
+     * @return return TableRecords;
+     * @throws SQLException the sql exception
+     */
+    @Override
+    protected TableRecords buildTableRecords(Map<String, List<Object>> pkValuesMap) throws SQLException {
+        SQLInsertRecognizer recognizer = (SQLInsertRecognizer)sqlRecognizer;
+        List<String> pkColumnNameList = getTableMeta().getPrimaryKeyOnlyName();
+        StringBuilder prefix = new StringBuilder("SELECT ");
+        StringBuilder suffix = new StringBuilder(" FROM ").append(getFromTableInSQL());
+        // build check sql
+        String firstKey = pkValuesMap.keySet().stream().findFirst().get();
+        int rowSize = pkValuesMap.get(firstKey).size();
+        suffix.append(WHERE).append(SqlGenerateUtils.buildWhereConditionByPKs(pkColumnNameList, rowSize, getDbType()));
+        StringJoiner selectSQLJoin = new StringJoiner(", ", prefix.toString(), suffix.toString());
+        List<String> insertColumns = recognizer.getInsertColumns();
+        if (ONLY_CARE_UPDATE_COLUMNS && CollectionUtils.isNotEmpty(insertColumns)) {
+            Set<String> columns = new HashSet<>(recognizer.getInsertColumns());
+            columns.addAll(pkColumnNameList);
+            for (String columnName : columns) {
+                selectSQLJoin.add(columnName);
+            }
+        } else {
+            selectSQLJoin.add(" * ");
+        }
+        ResultSet rs = null;
+        try (PreparedStatement ps = statementProxy.getConnection().prepareStatement(selectSQLJoin.toString())) {
+
+            int paramIndex = 1;
+            for (int r = 0; r < rowSize; r++) {
+                for (int c = 0; c < pkColumnNameList.size(); c++) {
+                    List<Object> pkColumnValueList = pkValuesMap.get(pkColumnNameList.get(c));
+                    int dataType = getTableMeta().getColumnMeta(pkColumnNameList.get(c)).getDataType();
+                    ps.setObject(paramIndex, pkColumnValueList.get(r), dataType);
+                    paramIndex++;
+                }
+            }
+            rs = ps.executeQuery();
+            return TableRecords.buildRecords(getTableMeta(), rs);
+        } finally {
+            if (null != rs) {
+                IOUtil.close(rs);
+            }
+        }
     }
 
 
