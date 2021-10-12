@@ -36,6 +36,8 @@ public class Lz4Util {
     private static final Logger LOGGER = LoggerFactory.getLogger(Lz4Util.class);
     private static final int ARRAY_SIZE = 1024;
 
+    static final byte[] MAGIC = new byte[]{76, 90, 52, 66, 108, 111, 99, 107};
+
     public static byte[] compress(byte[] bytes) {
         if (bytes == null) {
             throw new NullPointerException("bytes is null");
@@ -71,5 +73,17 @@ public class Lz4Util {
             LOGGER.error("decompress bytes error", e);
         }
         return outputStream.toByteArray();
+    }
+
+    public static boolean isCompress(byte[] bytes) {
+        if (bytes.length < MAGIC.length) {
+            return false;
+        }
+        for (int i = 0; i < MAGIC.length; i++) {
+            if (bytes[i] != MAGIC[i]) {
+                return false;
+            }
+        }
+        return true;
     }
 }

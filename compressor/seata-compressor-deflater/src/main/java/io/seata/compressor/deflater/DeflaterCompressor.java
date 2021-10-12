@@ -34,4 +34,9 @@ public class DeflaterCompressor implements Compressor {
         return DeflaterUtil.decompress(bytes);
     }
 
+    @Override
+    public boolean isCompress(byte[] bytes) {
+        return DeflaterUtil.isCompress(bytes);
+    }
+
 }

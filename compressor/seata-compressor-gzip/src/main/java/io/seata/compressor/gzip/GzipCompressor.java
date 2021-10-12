@@ -34,4 +34,9 @@ public class GzipCompressor implements Compressor {
         return GzipUtil.decompress(bytes);
     }
 
+    @Override
+    public boolean isCompress(byte[] bytes) {
+        return GzipUtil.isCompress(bytes);
+    }
+
 }

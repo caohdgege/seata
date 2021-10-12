@@ -62,4 +62,8 @@ public class BZip2Util {
             throw new RuntimeException("BZip2 decompress error", e);
         }
     }
+
+    public static boolean isCompress(byte[] bytes) {
+        return bytes.length > 2 && bytes[0] == 'h' && bytes[1] >= '1' && bytes[1] <= '9';
+    }
 }

@@ -65,4 +65,11 @@ public class GzipUtil {
         }
     }
 
+    public static boolean isCompress(byte[] bytes) {
+        if (bytes != null && bytes.length > 2) {
+            int header = (bytes[0] & 0xff) | (bytes[1] & 0xff) << 8;
+            return GZIPInputStream.GZIP_MAGIC == header;
+        }
+        return false;
+    }
 }

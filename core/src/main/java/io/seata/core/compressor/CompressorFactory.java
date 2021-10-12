@@ -63,6 +63,11 @@ public class CompressorFactory {
         public byte[] decompress(byte[] bytes) {
             return bytes;
         }
+
+        @Override
+        public boolean isCompress(byte[] bytes) {
+            return false;
+        }
     }
 
 }

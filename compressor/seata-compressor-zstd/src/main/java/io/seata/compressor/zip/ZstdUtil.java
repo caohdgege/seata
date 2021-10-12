@@ -42,4 +42,8 @@ public class ZstdUtil {
         Zstd.decompress(decompressBytes, bytes);
         return decompressBytes;
     }
+
+    public static boolean isCompress(byte[] bytes) {
+        return bytes.length > 4 && bytes[0] == 0;
+    }
 }

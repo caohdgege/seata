@@ -36,4 +36,9 @@ public class ZstdCompressor implements Compressor {
         return ZstdUtil.decompress(bytes);
     }
 
+    @Override
+    public boolean isCompress(byte[] bytes) {
+        return ZstdUtil.isCompress(bytes);
+    }
+
 }

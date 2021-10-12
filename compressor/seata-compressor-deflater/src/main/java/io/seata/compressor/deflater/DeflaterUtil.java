@@ -75,4 +75,7 @@ public class DeflaterUtil {
         }
     }
 
+    public static boolean isCompress(byte[] bytes) {
+        return bytes.length > 2 && bytes[0] == (byte)120 && bytes[1] == (byte)-100;
+    }
 }

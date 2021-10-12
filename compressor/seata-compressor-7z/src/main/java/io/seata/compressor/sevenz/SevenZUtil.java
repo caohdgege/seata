@@ -70,4 +70,8 @@ public class SevenZUtil {
             throw new RuntimeException("SevenZ decompress error", e);
         }
     }
+
+    public static boolean isCompress(byte[] bytes) {
+        return SevenZFile.matches(bytes, bytes.length);
+    }
 }

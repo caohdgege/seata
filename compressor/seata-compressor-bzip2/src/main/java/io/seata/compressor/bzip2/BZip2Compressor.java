@@ -36,4 +36,9 @@ public class BZip2Compressor implements Compressor {
         return BZip2Util.decompress(bytes);
     }
 
+    @Override
+    public boolean isCompress(byte[] bytes) {
+        return BZip2Util.isCompress(bytes);
+    }
+
 }

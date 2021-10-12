@@ -22,6 +22,7 @@ public interface Compressor {
 
     /**
      * compress byte[] to byte[].
+     *
      * @param bytes the bytes
      * @return the byte[]
      */
@@ -29,9 +30,16 @@ public interface Compressor {
 
     /**
      * decompress byte[] to byte[].
+     *
      * @param bytes the bytes
      * @return the byte[]
      */
     byte[] decompress(byte[] bytes);
 
+    /**
+     * Whether the data is compress
+     *
+     * @return true if has compress
+     */
+    boolean isCompress(byte[] bytes);
 }

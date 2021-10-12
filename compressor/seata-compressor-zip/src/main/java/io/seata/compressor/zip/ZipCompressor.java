@@ -36,4 +36,9 @@ public class ZipCompressor implements Compressor {
         return ZipUtil.decompress(bytes);
     }
 
+    @Override
+    public boolean isCompress(byte[] bytes) {
+        return false;
+    }
+
 }

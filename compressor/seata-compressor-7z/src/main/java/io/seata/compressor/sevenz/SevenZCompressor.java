@@ -36,4 +36,9 @@ public class SevenZCompressor implements Compressor {
         return SevenZUtil.decompress(bytes);
     }
 
+    @Override
+    public boolean isCompress(byte[] bytes) {
+        return SevenZUtil.isCompress(bytes);
+    }
+
 }
